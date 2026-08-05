@@ -1,10 +1,16 @@
 # FB2Blogger
 <p align="center">
-  <a href="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/ci.yml"><img alt="Windows CI" src="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/ci.yml"><img alt="Cross-platform CI" src="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/codeql.yml"><img alt="CodeQL" src="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/codeql.yml/badge.svg"></a>
+  <a href="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/security-audit.yml"><img alt="Security Audit / NuGet" src="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/security-audit.yml/badge.svg"></a>
+  <a href="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/secret-defense.yml"><img alt="Secret Defense / Gitleaks" src="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/secret-defense.yml/badge.svg"></a>
   <a href="https://github.com/hitoshic1982/FB2Blogger/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/hitoshic1982/FB2Blogger?label=release"></a>
-  <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+  <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+  <img alt=".NET 10" src="https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet&amp;logoColor=white">
+  <img alt="Four interface languages" src="https://img.shields.io/badge/interface%20languages-4-informational">
 </p>
 
+> 本專案遵守[炎劍開源軟體家族品質標準](docs/RELEASE-PROCESS.md)：真實驗證、四語同步、可追溯發布，且不犧牲既有功能。
 
 [繁體中文](README.md) · [简体中文](README.zh-CN.md) · [English](README.en.md) · [日本語](README.ja.md)
 
@@ -27,6 +33,14 @@
 - 以隱藏識別碼避免同一篇文章重複匯入。
 - 記錄每篇移轉進度；中斷後可安全接續，損壞的進度檔可由備份復原。
 - 防止惡意 ZIP 路徑穿越，不會修改原始 Facebook ZIP 或原圖。
+
+## 三平台進度
+
+- **Windows：**既有 WinForms 完整版維持原功能、原 LocalAppData 路徑與 DPAPI 憑證保護。
+- **macOS／Linux：**目前是 Avalonia 基礎預覽殼，可離線選擇、安全解壓並解析 Facebook ZIP；Google 授權、媒體上傳與 Blogger 發布尚未接通，還不是正式成品。
+- **共同基礎：**解析、模型、安全解壓、文章內容組合、搬移進度與平台資料路徑已抽成 `FB2Blogger.Core`，由 GitHub Actions 在 Windows、macOS、Linux 分別建置與測試。
+
+CI 通過不等於 macOS／Linux 實機驗證。專案擁有者目前只有 Windows 電腦，其他平台正式發布前仍需工程師提供真實環境測試。完整功能矩陣與安全計畫請見 [跨平台基礎文件](docs/CROSS-PLATFORM.md)。
 
 ## 使用前準備
 
@@ -56,12 +70,15 @@
 ## 從原始碼建置
 
 ```powershell
+dotnet build src/FB2Blogger.Core/FB2Blogger.Core.csproj -c Release
+dotnet run --project tests/CoreHarness/CoreHarness.csproj -c Release
+dotnet build src/FB2Blogger.Desktop/FB2Blogger.Desktop.csproj -c Release
 dotnet build src/FB2Blogger/FB2Blogger.csproj -c Release
 dotnet run --project tests/AuditHarness/AuditHarness.csproj -c Release
 dotnet publish src/FB2Blogger/FB2Blogger.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o artifacts
 ```
 
-需要 .NET 10 SDK。正式 Release 提供自含式單一 EXE，使用者不必另裝 .NET Runtime。
+需要 .NET 10 SDK。現有正式 Release 仍提供 Windows 自含式單一 EXE，使用者不必另裝 .NET Runtime；Avalonia 預覽殼尚未列為正式下載成品。
 
 ## 開源與責任界線
 

@@ -1,0 +1,63 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="FB2Blogger.Desktop.MainWindow"
+        Width="900"
+        Height="620"
+        MinWidth="620"
+        MinHeight="500"
+        WindowStartupLocation="CenterScreen"
+        Background="#EEF3F8">
+  <Border Margin="24"
+          Padding="28"
+          CornerRadius="18"
+          Background="#FFFFFF"
+          BorderBrush="#CBD8E6"
+          BorderThickness="1">
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*" RowSpacing="18">
+      <TextBlock x:Name="HeadingText"
+                 FontSize="28"
+                 FontWeight="SemiBold"
+                 Foreground="#16324F"
+                 TextWrapping="Wrap" />
+      <TextBlock x:Name="NoticeText"
+                 Grid.Row="1"
+                 MaxWidth="780"
+                 FontSize="16"
+                 LineHeight="25"
+                 Foreground="#40566C"
+                 TextWrapping="Wrap" />
+      <Grid Grid.Row="2" ColumnDefinitions="Auto,*" ColumnSpacing="14">
+        <TextBlock x:Name="LanguageLabel"
+                   VerticalAlignment="Center"
+                   FontSize="16"
+                   Foreground="#233B53" />
+        <ComboBox x:Name="LanguageSelector"
+                  Grid.Column="1"
+                  MinWidth="230"
+                  HorizontalAlignment="Left" />
+      </Grid>
+      <WrapPanel Grid.Row="3" Orientation="Horizontal">
+        <Button x:Name="ChooseButton"
+                Margin="0,0,12,8"
+                Padding="22,12"
+                FontSize="16" />
+        <Button x:Name="InspectButton"
+                Margin="0,0,12,8"
+                Padding="22,12"
+                FontSize="16"
+                IsEnabled="False" />
+      </WrapPanel>
+      <TextBox x:Name="StatusBox"
+               Grid.Row="4"
+               Padding="16"
+               AcceptsReturn="True"
+               IsReadOnly="True"
+               TextWrapping="Wrap"
+               ScrollViewer.VerticalScrollBarVisibility="Auto"
+               Background="#F7FAFD"
+               BorderBrush="#CBD8E6"
+               Foreground="#20384F"
+               FontSize="15" />
+    </Grid>
+  </Border>
+</Window>

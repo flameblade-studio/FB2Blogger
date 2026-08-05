@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/FB2Blogger.Core/FB2Blogger.Core.csproj" />
+    <Project Path="src/FB2Blogger.Desktop/FB2Blogger.Desktop.csproj" />
+    <Project Path="src/FB2Blogger/FB2Blogger.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/AuditHarness/AuditHarness.csproj" />
+    <Project Path="tests/CoreHarness/CoreHarness.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,50 @@
+name: Security Audit / NuGet
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "**/*.csproj"
+      - "**/*.props"
+      - "**/*.targets"
+      - "**/*.slnx"
+      - ".github/workflows/security-audit.yml"
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "47 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  nuget-audit:
+    name: nuget-audit
+    runs-on: windows-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore and fail on known vulnerable packages
+        shell: pwsh
+        run: >-
+          dotnet restore FB2Blogger.slnx
+          -p:NuGetAudit=true
+          -p:NuGetAuditMode=all
+          -p:NuGetAuditLevel=low
+          -p:WarningsAsErrors=NU1901%3BNU1902%3BNU1903%3BNU1904
+
+      - name: Report direct and transitive vulnerable packages
+        run: dotnet list FB2Blogger.slnx package --vulnerable --include-transitive

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>FB2Blogger.Core</AssemblyName>
+    <RootNamespace>FB2Blogger</RootNamespace>
+    <Version>1.1.0</Version>
+    <Authors>CHOU MING HUA / Flameblade Studio</Authors>
+    <Company>Flameblade Studio</Company>
+    <Product>FB2Blogger Core</Product>
+    <Description>Cross-platform Facebook export parsing and migration foundations for FB2Blogger.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+</Project>

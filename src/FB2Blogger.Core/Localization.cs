@@ -2,12 +2,12 @@ using System.Globalization;
 
 namespace FB2Blogger;
 
-internal sealed record LanguageOption(string Code, string Name)
+public sealed record LanguageOption(string Code, string Name)
 {
     public override string ToString() => Name;
 }
 
-internal static class L
+public static class L
 {
     public static readonly LanguageOption[] Supported =
     [
@@ -34,8 +34,8 @@ internal static class L
         return args.Length == 0 ? value : string.Format(CultureInfo.CurrentCulture, value, args);
     }
 
-    internal static IReadOnlyList<string> SupportedCodes => Supported.Select(item => item.Code).ToArray();
-    internal static IReadOnlyCollection<string> Keys(string language) => Texts[language].Keys.ToArray();
+    public static IReadOnlyList<string> SupportedCodes => Supported.Select(item => item.Code).ToArray();
+    public static IReadOnlyCollection<string> Keys(string language) => Texts[language].Keys.ToArray();
 
     static string Detect()
     {
@@ -231,6 +231,28 @@ internal static class L
         Add("zip_ratio_invalid", "ZIP 壓縮比例異常，可能是會塞滿硬碟的惡意壓縮檔。", "ZIP 压缩比异常，可能是会占满硬盘的恶意压缩文件。", "The ZIP has an abnormal compression ratio and may be a malicious archive that could fill the disk.", "ZIP の圧縮率が異常です。ディスクを埋め尽くす悪意ある圧縮ファイルの可能性があります。");
         Add("disk_space_insufficient", "系統碟空間不足。解壓縮約需 {0}，目前可安全使用約 {1}。", "系统盘空间不足。解压约需 {0}，当前可安全使用约 {1}。", "The system drive does not have enough space. Extraction needs about {0}; approximately {1} is safely available.", "システムドライブの空き容量が不足しています。展開には約 {0} 必要で、安全に使用できる容量は約 {1} です。");
         Add("zip_unsafe_path", "ZIP 包含不安全的路徑。", "ZIP 包含不安全的路径。", "The ZIP contains an unsafe path.", "ZIP に安全でないパスが含まれています。");
+        Add("zip_unsafe_link", "ZIP 包含不安全的符號連結。", "ZIP 包含不安全的符号链接。", "The ZIP contains an unsafe symbolic link.", "ZIP に安全でないシンボリックリンクが含まれています。");
+        Add("desktop_title", "FB2Blogger 跨平台預覽", "FB2Blogger 跨平台预览", "FB2Blogger cross-platform preview", "FB2Blogger クロスプラットフォーム・プレビュー");
+        Add("desktop_heading", "先安全檢查你的 Facebook 資料", "先安全检查你的 Facebook 数据", "Inspect your Facebook archive safely", "Facebook データを安全に確認");
+        Add("desktop_preview_notice", "這是 macOS／Linux 的基礎預覽殼：目前可安全選擇、解壓與解析 ZIP；Google 授權、媒體上傳及 Blogger 發布尚未接通。完整搬家請繼續使用 Windows 版。", "这是 macOS／Linux 的基础预览界面：目前可安全选择、解压和解析 ZIP；Google 授权、媒体上传及 Blogger 发布尚未接通。完整迁移请继续使用 Windows 版。", "This macOS/Linux foundation can safely select, extract, and inspect a ZIP. Google authorization, media upload, and Blogger publishing are not connected yet; use the Windows edition for full migration.", "macOS／Linux 向け基礎プレビューでは、ZIP の選択・安全な展開・解析まで行えます。Google 認証、メディアのアップロード、Blogger 公開は未接続のため、完全な移行には Windows 版を使用してください。");
+        Add("desktop_language", "介面語言", "界面语言", "Interface language", "表示言語");
+        Add("desktop_choose_zip", "選擇 Facebook ZIP", "选择 Facebook ZIP", "Choose Facebook ZIP", "Facebook ZIP を選択");
+        Add("desktop_zip_file_type", "Facebook ZIP 檔案", "Facebook ZIP 文件", "Facebook ZIP file", "Facebook ZIP ファイル");
+        Add("desktop_inspect", "安全檢查內容", "安全检查内容", "Inspect safely", "安全に確認");
+        Add("desktop_no_zip", "尚未選擇 ZIP。", "尚未选择 ZIP。", "No ZIP selected.", "ZIP が選択されていません。");
+        Add("desktop_zip_selected", "已選擇：{0}", "已选择：{0}", "Selected: {0}", "選択済み：{0}");
+        Add("desktop_inspecting", "正在安全解壓並解析；原始 ZIP 不會被修改…", "正在安全解压并解析；原始 ZIP 不会被修改…", "Safely extracting and inspecting. The original ZIP will not be changed…", "安全に展開して解析しています。元の ZIP は変更されません…");
+        Add("desktop_inspection_result", "找到 {0} 篇貼文、{1} 張圖片、{2} 部影片。這只是離線檢查，尚未上傳任何內容。", "找到 {0} 篇帖子、{1} 张图片、{2} 个视频。这只是离线检查，尚未上传任何内容。", "Found {0} posts, {1} images, and {2} videos. This was an offline inspection; nothing was uploaded.", "投稿 {0} 件、画像 {1} 件、動画 {2} 件が見つかりました。オフライン確認のみで、何もアップロードしていません。");
+        Add("desktop_inspection_failed", "檢查失敗：{0}", "检查失败：{0}", "Inspection failed: {0}", "確認に失敗しました：{0}");
+        Add("desktop_local_file_required", "目前只能檢查本機磁碟上的 ZIP。", "目前只能检查本机磁盘上的 ZIP。", "The preview currently requires a ZIP stored on the local disk.", "現在はローカルディスク上の ZIP のみ確認できます。");
+        Add("desktop_zip_missing", "找不到選取的 Facebook ZIP。", "找不到所选的 Facebook ZIP。", "The selected Facebook ZIP was not found.", "選択した Facebook ZIP が見つかりません。");
+
+        Add("temp_volume_space_insufficient", "暫存資料所在磁碟空間不足。解壓縮約需 {0}，保留安全空間後約可使用 {1}。", "临时数据所在磁盘空间不足。解压缩约需 {0}，保留安全空间后约可使用 {1}。", "The volume containing temporary data does not have enough space. Extraction needs about {0}; approximately {1} is safely available.", "一時データの保存先ボリュームに十分な空き容量がありません。展開には約 {0} が必要で、安全領域を除くと約 {1} を使用できます。");
+        Add("temp_cleanup_failed", "檢查已完成或中止，但私人暫存資料無法刪除：{0}。程式會在下次啟動及下次檢查前重試。", "检查已完成或中止，但私人临时数据无法删除：{0}。程序会在下次启动及下次检查前重试。", "Inspection finished or stopped, but private temporary data could not be deleted: {0}. The app will retry at the next launch and before the next inspection.", "検査は完了または中止されましたが、個人データを含む一時フォルダーを削除できませんでした：{0}。次回起動時および次回検査前に再試行します。");
+        Add("temp_cleanup_retry_failed", "仍無法清除 {0} 個先前留下的私人暫存資料夾：{1}。請關閉正在使用其中檔案的程式後再試。", "仍无法清除 {0} 个先前留下的私人临时数据文件夹：{1}。请关闭正在使用其中文件的程序后重试。", "{0} private temporary folder(s) from a previous run still could not be removed: {1}. Close any program using those files and try again.", "前回から残っている個人データの一時フォルダー {0} 件を削除できませんでした：{1}。その中のファイルを使用しているアプリを閉じて、再試行してください。");
+        Add("temp_operation_and_cleanup_failed", "檢查作業失敗，且私人暫存資料也無法刪除。程式會在下次啟動重試清理。", "检查操作失败，且私人临时数据也无法删除。程序会在下次启动时重试清理。", "Inspection failed and its private temporary data could not be deleted. Cleanup will be retried at the next launch.", "検査が失敗し、個人データを含む一時フォルダーも削除できませんでした。次回起動時に削除を再試行します。");
+
+        Add("temp_lease_cleanup_failed", "私人暫存資料已刪除，但無法移除清理租約檔案：{0}。下次啟動會再次處理。", "私人临时数据已删除，但无法移除清理租约文件：{0}。下次启动会再次处理。", "Private temporary data was deleted, but its cleanup lease file could not be removed: {0}. The app will retry on the next launch.", "個人データを含む一時フォルダーは削除されましたが、クリーンアップ用のリースファイルを削除できませんでした：{0}。次回起動時に再試行します。");
 
         void Add(string key, string zhTw, string zhCn, string english, string japanese)
         {

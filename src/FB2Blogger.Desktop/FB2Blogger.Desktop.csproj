@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>FB2Blogger.Desktop</AssemblyName>
+    <RootNamespace>FB2Blogger.Desktop</RootNamespace>
+    <Version>1.1.0</Version>
+    <Authors>CHOU MING HUA / Flameblade Studio</Authors>
+    <Company>Flameblade Studio</Company>
+    <Product>FB2Blogger Cross-platform Preview</Product>
+    <Description>Cross-platform preview shell for safely inspecting Facebook exports.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.0" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.0" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../FB2Blogger.Core/FB2Blogger.Core.csproj" />
+  </ItemGroup>
+</Project>

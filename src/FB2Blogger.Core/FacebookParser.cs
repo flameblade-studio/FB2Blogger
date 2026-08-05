@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace FB2Blogger;
 
-internal static partial class FacebookParser
+public static partial class FacebookParser
 {
     [GeneratedRegex(@"(?<![\p{L}\p{N}_])#([\p{L}\p{N}_-]+)")]
     private static partial Regex HashtagRegex();
@@ -15,7 +15,8 @@ internal static partial class FacebookParser
     public static List<FacebookPost> Read(string root, Action<string> log, CancellationToken cancellationToken = default)
     {
         var output = new List<FacebookPost>();
-        var files = Directory.EnumerateFiles(root, "*.json", SearchOption.AllDirectories)
+        var files = Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories)
+            .Where(p => Path.GetExtension(p).Equals(".json", StringComparison.OrdinalIgnoreCase))
             .Where(p => p.Contains("post", StringComparison.OrdinalIgnoreCase) ||
                         p.Contains("timeline", StringComparison.OrdinalIgnoreCase) ||
                         p.Contains("your_activity", StringComparison.OrdinalIgnoreCase)).ToList();
