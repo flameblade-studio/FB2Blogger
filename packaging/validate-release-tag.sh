@@ -8,6 +8,7 @@ input_tag="${INPUT_TAG:-}"
 tag_commit="${TAG_COMMIT:?TAG_COMMIT is required}"
 main_ref="${MAIN_REF:-origin/main}"
 publish="false"
+release_tag=""
 resolved_commit="$(git rev-parse "${tag_commit}^{commit}")"
 
 if [[ "${event_name}" == "workflow_dispatch" && -n "${input_tag}" ]]; then
@@ -29,12 +30,13 @@ if [[ ( "${event_name}" == "push" || "${event_name}" == "workflow_dispatch" ) &&
     exit 3
   fi
   publish="true"
+  release_tag="${ref_name}"
 fi
 
 if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
   printf 'publish=%s\n' "${publish}" >> "${GITHUB_OUTPUT}"
-  printf 'tag=%s\n' "${ref_name}" >> "${GITHUB_OUTPUT}"
+  printf 'tag=%s\n' "${release_tag}" >> "${GITHUB_OUTPUT}"
   printf 'build_commit=%s\n' "${resolved_commit}" >> "${GITHUB_OUTPUT}"
 else
-  printf 'publish=%s\ntag=%s\nbuild_commit=%s\n' "${publish}" "${ref_name}" "${resolved_commit}"
+  printf 'publish=%s\ntag=%s\nbuild_commit=%s\n' "${publish}" "${release_tag}" "${resolved_commit}"
 fi

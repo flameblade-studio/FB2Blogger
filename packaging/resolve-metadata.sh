@@ -10,7 +10,15 @@ if [[ ! "${project_version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.-]+)?$ ]]
   exit 2
 fi
 
-case "${REF_TYPE:-}:${EVENT_NAME:-}" in
+if [[ -n "${RELEASE_TAG:-}" ]]; then
+  [[ "${RELEASE_TAG}" =~ ^v1\.1\.0-rc\.([1-9][0-9]*)$ ]] || {
+    echo "Recovery release tag must match v1.1.0-rc.N: ${RELEASE_TAG}" >&2
+    exit 3
+  }
+  package_label="${RELEASE_TAG}"
+  app_version="${package_label#v}"
+else
+  case "${REF_TYPE:-}:${EVENT_NAME:-}" in
   tag:*)
     package_label="${REF_NAME:?REF_NAME is required for tag builds}"
     app_version="${package_label#v}"
@@ -23,7 +31,8 @@ case "${REF_TYPE:-}:${EVENT_NAME:-}" in
     package_label="v${project_version}-preview.build${RUN_NUMBER:?RUN_NUMBER is required}"
     app_version="${project_version}"
     ;;
-esac
+  esac
+fi
 
 if [[ ! "${app_version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.-]+)?$ ]]; then
   echo "Resolved tag version is not valid semantic version text: ${app_version}" >&2
