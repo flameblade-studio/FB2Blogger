@@ -1,0 +1,31 @@
+name: Windows CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Build
+        run: dotnet build src/FB2Blogger/FB2Blogger.csproj -c Release --nologo
+      - name: Regression audit
+        run: dotnet run --project tests/AuditHarness/AuditHarness.csproj -c Release
+      - name: Publish portable executable
+        run: dotnet publish src/FB2Blogger/FB2Blogger.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o artifacts
+      - name: Upload executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: FB2Blogger-v1.0.0-Windows-x64
+          path: artifacts/FB2Blogger.exe
+
