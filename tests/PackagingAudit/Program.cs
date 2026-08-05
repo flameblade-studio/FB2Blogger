@@ -150,8 +150,9 @@ Check(workflow.Contains("gh release create", StringComparison.Ordinal) &&
       workflow.Contains("draft=false", StringComparison.Ordinal) &&
       workflow.Contains("Release tag moved after validation", StringComparison.Ordinal) &&
       workflow.Contains("ref: ${{ needs.release-gate.outputs.build_commit }}", StringComparison.Ordinal) &&
+      workflow.Contains("github.event_name == 'workflow_dispatch' && 'main' || needs.release-gate.outputs.build_commit", StringComparison.Ordinal) &&
       workflow.Contains("--notes-file", StringComparison.Ordinal),
-    "The guarded workflow locks one reviewed commit and atomically publishes one exact curated GitHub pre-release");
+    "The guarded workflow locks one reviewed commit and atomically publishes one exact curated GitHub pre-release with repaired recovery orchestration");
 Check(workflow.Contains("*.dmg", StringComparison.Ordinal) &&
       workflow.Contains("*.AppImage", StringComparison.Ordinal) &&
       !Regex.IsMatch(workflow + macScript + linuxScript, @"(?i)zip[^\n]*(?:\.dmg|\.AppImage)"),

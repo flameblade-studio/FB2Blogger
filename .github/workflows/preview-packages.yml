@@ -350,7 +350,9 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.0
         with:
-          ref: ${{ needs.release-gate.outputs.build_commit }}
+          # Recovery uses the repaired release orchestration from main while
+          # all package jobs above continue to build the immutable tag commit.
+          ref: ${{ github.event_name == 'workflow_dispatch' && 'main' || needs.release-gate.outputs.build_commit }}
           fetch-depth: 0
       - name: Reconfirm the remote tag still names the reviewed commit
         shell: bash
