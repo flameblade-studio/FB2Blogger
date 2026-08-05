@@ -83,7 +83,8 @@ Check(releaseGateScript.Contains("^v1\\.1\\.0-rc\\.([1-9][0-9]*)$", StringCompar
       workflow.Contains("+refs/heads/main:refs/remotes/origin/main", StringComparison.Ordinal),
     "Release authority requires an exact positive RC tag whose commit is contained in origin/main");
 Check(workflow.Contains("permissions:\n  contents: read", StringComparison.Ordinal) &&
-      workflow.Contains("if: github.event_name == 'push' && github.ref_type == 'tag' && needs.release-gate.outputs.publish == 'true'", StringComparison.Ordinal) &&
+      workflow.Contains("if: needs.release-gate.outputs.publish == 'true'", StringComparison.Ordinal) &&
+      workflow.Contains("Existing v1.1.0-rc.N tag to rebuild and publish", StringComparison.Ordinal) &&
       workflow.Contains("needs: [release-gate, windows-release, macos-x64-preview, macos-arm64-preview, linux-preview]", StringComparison.Ordinal),
     "Pull requests and ordinary main pushes remain read-only while release publication waits for every platform");
 Check(workflow.Contains("name: Required - All platform packages", StringComparison.Ordinal) &&
@@ -117,7 +118,7 @@ Check(actionUses.All(action => action.Name.StartsWith("actions/", StringComparis
     "Preview workflow uses only GitHub-maintained Actions");
 
 Check(workflow.Contains("actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6", StringComparison.Ordinal) &&
-      workflow.Contains("if: github.event_name == 'push' && github.ref_type == 'tag'", StringComparison.Ordinal) &&
+      workflow.Contains("if: needs.release-gate.outputs.publish == 'true'", StringComparison.Ordinal) &&
       workflow.Contains("id-token: write", StringComparison.Ordinal) &&
       workflow.Contains("attestations: write", StringComparison.Ordinal) &&
       workflow.Contains("artifact-metadata: write", StringComparison.Ordinal),
@@ -139,7 +140,9 @@ Check(workflow.Contains("gh release create", StringComparison.Ordinal) &&
       workflow.Contains("--verify-tag", StringComparison.Ordinal) &&
       workflow.Contains("--draft", StringComparison.Ordinal) &&
       workflow.Contains("--prerelease", StringComparison.Ordinal) &&
-      workflow.Contains("gh release upload", StringComparison.Ordinal) &&
+      workflow.Contains("gh release create \"${RELEASE_TAG}\" \"${assets[@]}\"", StringComparison.Ordinal) &&
+      !workflow.Contains("releases/tags/${RELEASE_TAG}", StringComparison.Ordinal) &&
+      workflow.Contains("and .draft == true", StringComparison.Ordinal) &&
       workflow.Contains("draft=false", StringComparison.Ordinal) &&
       workflow.Contains("Release tag moved after validation", StringComparison.Ordinal) &&
       workflow.Contains("ref: ${{ needs.release-gate.outputs.build_commit }}", StringComparison.Ordinal) &&
