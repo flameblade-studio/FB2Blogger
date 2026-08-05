@@ -120,6 +120,20 @@ try
     catch (InvalidDataException) { traversalBlocked = true; }
     Check(traversalBlocked && !File.Exists(Path.Combine(root, "escape.txt")), "ZIP path traversal is blocked on every platform");
 
+    var prefixCollisionZip = Path.Combine(root, "prefix-collision.zip");
+    using (var zip = ZipFile.Open(prefixCollisionZip, ZipArchiveMode.Create))
+    {
+        var entry = zip.CreateEntry("../unsafe-sibling/escape.txt");
+        using var writer = new StreamWriter(entry.Open());
+        writer.Write("blocked");
+    }
+    var prefixCollisionBlocked = false;
+    try { FacebookArchiveExtractor.Extract(prefixCollisionZip, Path.Combine(root, "unsafe")); }
+    catch (InvalidDataException) { prefixCollisionBlocked = true; }
+    Check(
+        prefixCollisionBlocked && !File.Exists(Path.Combine(root, "unsafe-sibling", "escape.txt")),
+        "ZIP extraction enforces a directory boundary instead of a string-prefix match");
+
     var linkZip = Path.Combine(root, "link.zip");
     using (var zip = ZipFile.Open(linkZip, ZipArchiveMode.Create))
     {

@@ -15,6 +15,12 @@ public static class FacebookArchiveExtractor
         ArgumentException.ThrowIfNullOrWhiteSpace(target);
 
         var targetRoot = Path.GetFullPath(target);
+        var targetPrefix = Path.EndsInDirectorySeparator(targetRoot)
+            ? targetRoot
+            : targetRoot + Path.DirectorySeparatorChar;
+        var pathComparison = OperatingSystem.IsWindows()
+            ? StringComparison.OrdinalIgnoreCase
+            : StringComparison.Ordinal;
         using var zip = ZipFile.OpenRead(archive);
         if (zip.Entries.Count > MaximumEntries)
             throw new InvalidDataException(L.T("zip_too_many_entries"));
@@ -45,7 +51,9 @@ public static class FacebookArchiveExtractor
         {
             cancellationToken.ThrowIfCancellationRequested();
             var destination = Path.GetFullPath(Path.Combine(targetRoot, entry.FullName));
-            EnsureInsideTarget(targetRoot, destination);
+            if (!string.Equals(destination, targetRoot, pathComparison) &&
+                !destination.StartsWith(targetPrefix, pathComparison))
+                throw new InvalidDataException(L.T("zip_unsafe_path"));
             if (string.IsNullOrEmpty(entry.Name))
             {
                 Directory.CreateDirectory(destination);
@@ -55,15 +63,6 @@ public static class FacebookArchiveExtractor
             Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
             entry.ExtractToFile(destination, true);
         }
-    }
-
-    static void EnsureInsideTarget(string root, string candidate)
-    {
-        var relative = Path.GetRelativePath(root, candidate);
-        if (Path.IsPathRooted(relative) || relative == ".." ||
-            relative.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal) ||
-            relative.StartsWith(".." + Path.AltDirectorySeparatorChar, StringComparison.Ordinal))
-            throw new InvalidDataException(L.T("zip_unsafe_path"));
     }
 
     static bool IsSymbolicLink(ZipArchiveEntry entry)
