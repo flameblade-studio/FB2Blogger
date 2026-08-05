@@ -15,12 +15,7 @@ public static class FacebookArchiveExtractor
         ArgumentException.ThrowIfNullOrWhiteSpace(target);
 
         var targetRoot = Path.GetFullPath(target);
-        var targetPrefix = Path.EndsInDirectorySeparator(targetRoot)
-            ? targetRoot
-            : targetRoot + Path.DirectorySeparatorChar;
-        var pathComparison = OperatingSystem.IsWindows()
-            ? StringComparison.OrdinalIgnoreCase
-            : StringComparison.Ordinal;
+        var fullTargetDirectory = Path.GetFullPath(target + Path.DirectorySeparatorChar);
         using var zip = ZipFile.OpenRead(archive);
         if (zip.Entries.Count > MaximumEntries)
             throw new InvalidDataException(L.T("zip_too_many_entries"));
@@ -51,8 +46,7 @@ public static class FacebookArchiveExtractor
         {
             cancellationToken.ThrowIfCancellationRequested();
             var destination = Path.GetFullPath(Path.Combine(targetRoot, entry.FullName));
-            if (!string.Equals(destination, targetRoot, pathComparison) &&
-                !destination.StartsWith(targetPrefix, pathComparison))
+            if (!destination.StartsWith(fullTargetDirectory))
                 throw new InvalidDataException(L.T("zip_unsafe_path"));
             if (string.IsNullOrEmpty(entry.Name))
             {
