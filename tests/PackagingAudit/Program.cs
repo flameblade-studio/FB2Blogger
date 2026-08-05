@@ -156,6 +156,24 @@ Check(workflow.Contains("gh release create", StringComparison.Ordinal) &&
 Check(workflow.Split("needs.release-gate.outputs.publish == 'true' && 'tag' || github.ref_type", StringSplitOptions.None).Length - 1 == 4 &&
       workflow.Split("needs.release-gate.outputs.publish == 'true' && needs.release-gate.outputs.tag || github.ref_name", StringSplitOptions.None).Length - 1 == 4,
     "Every package job presents a validated recovery run to immutable-tag-era metadata scripts as the exact RC tag");
+var releaseGateSection = workflow[(workflow.IndexOf("release-gate:", StringComparison.Ordinal))..workflow.IndexOf("windows-release:", StringComparison.Ordinal)];
+Check(releaseGateSection.Contains("REF_TYPE: ${{ github.ref_type }}", StringComparison.Ordinal) &&
+      !releaseGateSection.Contains("needs.release-gate.outputs.publish", StringComparison.Ordinal),
+    "The release authority never self-references downstream outputs while validating the requested tag");
+foreach (var (packageJob, nextJob) in new[]
+{
+    ("windows-release:", "macos-x64-preview:"),
+    ("macos-x64-preview:", "macos-arm64-preview:"),
+    ("macos-arm64-preview:", "linux-preview:"),
+    ("linux-preview:", "required-platform-packages:")
+})
+{
+    var start = workflow.IndexOf(packageJob, StringComparison.Ordinal);
+    var end = workflow.IndexOf(nextJob, start + packageJob.Length, StringComparison.Ordinal);
+    var section = workflow[start..end];
+    Check(section.Contains("needs.release-gate.outputs.publish == 'true' && 'tag' || github.ref_type", StringComparison.Ordinal),
+        $"{packageJob.TrimEnd(':')} receives the validated RC identity during recovery");
+}
 Check(workflow.Contains("*.dmg", StringComparison.Ordinal) &&
       workflow.Contains("*.AppImage", StringComparison.Ordinal) &&
       !Regex.IsMatch(workflow + macScript + linuxScript, @"(?i)zip[^\n]*(?:\.dmg|\.AppImage)"),
