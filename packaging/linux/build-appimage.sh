@@ -12,6 +12,7 @@ fi
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "${script_dir}/../.." && pwd)"
+license_file="${repo_root}/LICENSE"
 publish_dir="${PUBLISH_DIR:?PUBLISH_DIR is required}"
 output_dir="${OUTPUT_DIR:?OUTPUT_DIR is required}"
 package_label="${PACKAGE_LABEL:?PACKAGE_LABEL is required}"
@@ -20,6 +21,10 @@ executable="${publish_dir}/FB2Blogger.Desktop"
 if [[ ! -x "${executable}" ]]; then
   echo "Published executable is missing or is not executable: ${executable}" >&2
   exit 4
+fi
+if [[ ! -f "${license_file}" ]] || ! grep -Fq 'Permission is hereby granted' "${license_file}"; then
+  echo "A readable MIT license is required: ${license_file}" >&2
+  exit 5
 fi
 
 safe_label="$(printf '%s' "${package_label}" | tr -c 'A-Za-z0-9._-' '-')"
@@ -37,6 +42,7 @@ mkdir -p \
   "${app_dir}/usr/share/icons/hicolor/scalable/apps"
 cp -a "${publish_dir}/." "${app_dir}/usr/bin/"
 cp "${repo_root}/packaging/PREVIEW-NOTICE.txt" "${app_dir}/usr/share/doc/fb2blogger-preview/PREVIEW-NOTICE.txt"
+cp "${license_file}" "${app_dir}/usr/share/doc/fb2blogger-preview/LICENSE.txt"
 cp "${repo_root}/packaging/linux/fb2blogger-preview.desktop" "${app_dir}/fb2blogger-preview.desktop"
 cp "${repo_root}/packaging/linux/fb2blogger-preview.desktop" "${app_dir}/usr/share/applications/fb2blogger-preview.desktop"
 cp "${repo_root}/packaging/linux/fb2blogger-preview.svg" "${app_dir}/fb2blogger-preview.svg"
@@ -73,6 +79,8 @@ mkdir -p "${verify_dir}"
   "${artifact_path}" --appimage-extract >/dev/null
   test -x squashfs-root/AppRun
   test -x squashfs-root/usr/bin/FB2Blogger.Desktop
+  test -f squashfs-root/usr/share/doc/fb2blogger-preview/LICENSE.txt
+  grep -Fq 'Permission is hereby granted' squashfs-root/usr/share/doc/fb2blogger-preview/LICENSE.txt
 )
 
 smoke_output="$(APPIMAGE_EXTRACT_AND_RUN=1 "${artifact_path}" --package-smoke-test)"

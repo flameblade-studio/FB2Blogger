@@ -8,6 +8,7 @@ fi
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd "${script_dir}/../.." && pwd)"
+license_file="${repo_root}/LICENSE"
 publish_dir="${PUBLISH_DIR:?PUBLISH_DIR is required}"
 output_dir="${OUTPUT_DIR:?OUTPUT_DIR is required}"
 package_label="${PACKAGE_LABEL:?PACKAGE_LABEL is required}"
@@ -34,6 +35,10 @@ if [[ ! -x "${executable}" ]]; then
   echo "Published executable is missing or is not executable: ${executable}" >&2
   exit 5
 fi
+if [[ ! -f "${license_file}" ]] || ! grep -Fq 'Permission is hereby granted' "${license_file}"; then
+  echo "A readable MIT license is required: ${license_file}" >&2
+  exit 6
+fi
 
 safe_label="$(printf '%s' "${package_label}" | tr -c 'A-Za-z0-9._-' '-')"
 artifact_name="FB2Blogger-${safe_label}-macOS-${architecture_label}-Preview.dmg"
@@ -56,6 +61,7 @@ contents="${app_bundle}/Contents"
 mkdir -p "${contents}/MacOS" "${contents}/Resources"
 cp -R "${publish_dir}/." "${contents}/MacOS/"
 cp "${repo_root}/packaging/PREVIEW-NOTICE.txt" "${contents}/Resources/PREVIEW-NOTICE.txt"
+cp "${license_file}" "${contents}/Resources/LICENSE.txt"
 chmod +x "${contents}/MacOS/FB2Blogger.Desktop"
 
 cat > "${contents}/Info.plist" <<PLIST
@@ -84,6 +90,7 @@ dmg_root="${work_dir}/dmg-root"
 mkdir -p "${dmg_root}"
 cp -R "${app_bundle}" "${dmg_root}/"
 cp "${repo_root}/packaging/PREVIEW-NOTICE.txt" "${dmg_root}/README-PREVIEW.txt"
+cp "${license_file}" "${dmg_root}/LICENSE.txt"
 ln -s /Applications "${dmg_root}/Applications"
 
 artifact_path="${output_dir}/${artifact_name}"
@@ -101,6 +108,10 @@ mounted_device="$(printf '%s\n' "${attach_output}" | awk '/^\/dev\// { print $1;
 test -n "${mounted_device}"
 test -d "${mount_dir}/FB2Blogger Preview.app"
 test -f "${mount_dir}/README-PREVIEW.txt"
+test -f "${mount_dir}/LICENSE.txt"
+test -f "${mount_dir}/FB2Blogger Preview.app/Contents/Resources/LICENSE.txt"
+grep -Fq 'Permission is hereby granted' "${mount_dir}/LICENSE.txt"
+grep -Fq 'Permission is hereby granted' "${mount_dir}/FB2Blogger Preview.app/Contents/Resources/LICENSE.txt"
 
 smoke_output="$("${mount_dir}/FB2Blogger Preview.app/Contents/MacOS/FB2Blogger.Desktop" --package-smoke-test)"
 printf '%s\n' "${smoke_output}"

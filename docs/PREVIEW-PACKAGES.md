@@ -4,14 +4,18 @@
 
 ### 下載內容與功能邊界
 
+- Windows 提供完整功能的自含式 x64 `FB2Blogger.exe`；候選版發布前會在原生 Windows runner 實際開啟主視窗並關閉，確認封裝不是只能建置、不能啟動。
 - macOS 提供 Intel x64 與 Apple Silicon arm64 兩個未使用 Apple Developer ID 簽章、未公證的 Preview `.dmg`，每個映像都內含真正的 `.app`。
 - Linux 提供 x64 Preview `.AppImage`。它是 AppImage 規格的可執行檔，不是改副檔名的 ZIP。
+- 每個成品都附可直接閱讀的 MIT 授權全文：Windows 放在 EXE 旁，macOS 放在 DMG 根目錄與 `.app/Contents/Resources`，Linux 放在 AppImage 的標準文件目錄。
 - 兩種預覽版都只提供離線選擇、安全解壓與解析本人從 Facebook 官方取得的 ZIP。Google OAuth、Drive／YouTube 上傳與 Blogger 發布仍只存在於 Windows 完整版。
 - 預覽版不會要求或保存 OAuth 憑證；請勿把 Client Secret 或 Token 輸入預覽版。
 
 ### 自動驗證與可追溯性
 
-GitHub Actions 分別在原生 `macos-15-intel`、Apple Silicon `macos-15` 與 `ubuntu-24.04` runner 建置封裝，掛載或解開成品，再直接執行封裝內程式的啟動檢查。每份成品隨附 SHA256 與 SPDX SBOM。可信任的 `main`、版本標籤與手動工作流程另由 GitHub 簽發 SLSA 來源證明及 SBOM 證明；Pull Request 驗證產物不簽發證明。
+GitHub Actions 分別在原生 Windows、`macos-15-intel`、Apple Silicon `macos-15` 與 `ubuntu-24.04` runner 建置封裝。Pull Request、一般 `main` push 與手動執行只做唯讀驗證，不建立 Release。只有格式精確為 `v1.1.0-rc.N`（N 大於零）、且標籤提交確實位於 `origin/main` 歷史中的 tag，才可進入發布閘門；四個平台必須全部成功，並通過精確檔案清單、可讀 MIT 授權、個別 SHA256、彙總 `SHA256SUMS`、SPDX SBOM 與 GitHub 來源／SBOM 證明後，才建立單一四語 Pre-release。
+
+候選版建立後，官網既有的 Flameblade Series Gateway 會依 `products.json` 每小時讀取 GitHub Releases；不另設重複的頁面覆寫程式，也不需要把 WordPress 帳密交給本儲存庫。
 
 ```bash
 # macOS
@@ -35,14 +39,18 @@ macOS 使用者請選擇符合處理器的 DMG，將 App 拖入「應用程式�
 
 ### 下载内容与功能边界
 
+- Windows 提供完整功能的自包含 x64 `FB2Blogger.exe`；候选版发布前会在原生 Windows runner 中实际打开并关闭主窗口，确认软件包能够真正启动。
 - macOS 提供 Intel x64 与 Apple Silicon arm64 两个未使用 Apple Developer ID 签名、未公证的 Preview `.dmg`，每个映像都包含真正的 `.app`。
 - Linux 提供 x64 Preview `.AppImage`，它是符合 AppImage 规范的可执行文件，不是修改扩展名的 ZIP。
+- 每个成品都附带可直接阅读的 MIT 许可证全文：Windows 放在 EXE 旁，macOS 放在 DMG 根目录与 `.app/Contents/Resources`，Linux 放在 AppImage 的标准文档目录。
 - 两种预览版都只支持离线选择、安全解压和解析本人从 Facebook 官方取得的 ZIP。Google OAuth、Drive／YouTube 上传与 Blogger 发布仍仅由 Windows 完整版提供。
 - 预览版不会要求或保存 OAuth 凭据；请勿把 Client Secret 或 Token 输入预览版。
 
 ### 自动验证与可追溯性
 
-GitHub Actions 分别在原生 `macos-15-intel`、Apple Silicon `macos-15` 与 `ubuntu-24.04` runner 构建软件包，挂载或解开成品，并直接执行软件包内程序的启动检查。每份成品附带 SHA256 与 SPDX SBOM。可信的 `main`、版本标签和手动工作流还会由 GitHub 签发 SLSA 来源证明及 SBOM 证明；Pull Request 验证产物不会签发证明。
+GitHub Actions 分别在原生 Windows、`macos-15-intel`、Apple Silicon `macos-15` 与 `ubuntu-24.04` runner 构建软件包。Pull Request、普通 `main` push 与手动运行只进行只读验证，不建立 Release。只有格式严格为 `v1.1.0-rc.N`（N 大于零）、且标签提交属于 `origin/main` 历史的 tag 才能进入发布闸门；四个平台必须全部成功，并通过精确文件清单、可读 MIT 许可证、单独 SHA256、汇总 `SHA256SUMS`、SPDX SBOM 与 GitHub 来源／SBOM 证明后，才建立一个四语 Pre-release。
+
+候选版建立后，官网现有的 Flameblade Series Gateway 会按照 `products.json` 每小时读取 GitHub Releases；不另建重复的页面覆写程序，也不需要把 WordPress 凭据交给本仓库。
 
 macOS 请先核对 SHA256，选择与处理器一致的 DMG，将 App 拖入“应用程序”，再按住 Control 点击 App 并选择“打开”。由于没有 Apple Developer ID 签名和公证，系统会显示安全提醒；请勿关闭整台电脑的安全防护。Linux 核对哈希后运行 `chmod +x 文件名.AppImage`；缺少 FUSE 时可使用 `APPIMAGE_EXTRACT_AND_RUN=1 ./文件名.AppImage`。
 
@@ -52,14 +60,18 @@ macOS 请先核对 SHA256，选择与处理器一致的 DMG，将 App 拖入“�
 
 ### Downloads and functional boundary
 
+- Windows receives the self-contained full-featured x64 `FB2Blogger.exe`. Before an RC can publish, a native Windows runner must open and close the real main window to prove that the packaged application actually starts.
 - macOS receives separate Intel x64 and Apple Silicon arm64 Preview `.dmg` files. Each disk image contains a real `.app`; it is not signed with an Apple Developer ID and is not notarized.
 - Linux receives an x64 Preview `.AppImage` that follows the AppImage format. It is not a ZIP with a renamed extension.
+- Every artifact carries the readable MIT license: beside the Windows EXE, at the DMG root and inside `.app/Contents/Resources` on macOS, and in the standard AppImage documentation directory on Linux.
 - Both previews only select, safely extract, and parse an official Facebook export ZIP offline. Google OAuth, Drive/YouTube upload, and Blogger publishing remain exclusive to the full Windows edition.
 - The previews neither request nor store OAuth credentials. Never enter a Client Secret or token into a preview build.
 
 ### Automated evidence and traceability
 
-GitHub Actions builds on native `macos-15-intel`, Apple Silicon `macos-15`, and `ubuntu-24.04` runners. It mounts or extracts the finished package and directly invokes the packaged executable's launch smoke test. Every package includes a SHA256 file and an SPDX SBOM. Trusted `main`, version-tag, and manual runs also receive GitHub-signed SLSA provenance and SBOM attestations; pull-request validation artifacts are deliberately not attested.
+GitHub Actions builds on native Windows, `macos-15-intel`, Apple Silicon `macos-15`, and `ubuntu-24.04` runners. Pull requests, ordinary `main` pushes, and manual runs are read-only validation and never create a release. Publication is allowed only for an exact `v1.1.0-rc.N` tag where N is greater than zero and the tagged commit is contained in `origin/main`. All four platform packages must succeed and pass exact-inventory, readable-MIT-license, individual SHA256, aggregate `SHA256SUMS`, SPDX SBOM, and GitHub provenance/SBOM attestation checks before one curated four-language pre-release is created.
+
+After publication, the existing Flameblade Series Gateway reads GitHub Releases hourly according to `products.json`. This repository does not duplicate that authority with a page-overwrite script and does not require WordPress credentials.
 
 On macOS, verify SHA256, choose the DMG matching the processor, drag the app to Applications, then Control-click the app and choose Open. Gatekeeper warns because there is no Apple Developer ID signature or notarization; do not disable system-wide security controls. On Linux, verify the hash and run `chmod +x filename.AppImage`. If FUSE is unavailable, use `APPIMAGE_EXTRACT_AND_RUN=1 ./filename.AppImage`.
 
@@ -69,14 +81,18 @@ A native-runner launch check proves that the package can be built, mounted or ex
 
 ### 配布内容と機能の境界
 
+- Windows では完全機能の自己完結型 x64 `FB2Blogger.exe` を提供します。RC 公開前にネイティブ Windows runner で実際のメインウィンドウを開いて閉じ、パッケージが本当に起動することを確認します。
 - macOS では Intel x64 と Apple Silicon arm64 向けに、Apple Developer ID 署名および公証を行っていない Preview `.dmg` を個別に作成します。各ディスクイメージには実際の `.app` が入ります。
 - Linux では x64 Preview `.AppImage` を作成します。拡張子だけを変更した ZIP ではなく、AppImage 形式の実行ファイルです。
+- すべての成果物に読みやすい MIT License 全文を同梱します。Windows は EXE の隣、macOS は DMG 直下と `.app/Contents/Resources`、Linux は AppImage の標準ドキュメント場所です。
 - どちらのプレビューも、Facebook 公式エクスポート ZIP の選択、安全な展開、オフライン解析だけに対応します。Google OAuth、Drive／YouTube へのアップロード、Blogger 公開は引き続き Windows 完全版のみです。
 - プレビュー版は OAuth 認証情報を要求も保存もしません。Client Secret やトークンを入力しないでください。
 
 ### 自動検証と追跡可能性
 
-GitHub Actions は、ネイティブの `macos-15-intel`、Apple Silicon `macos-15`、`ubuntu-24.04` runner でパッケージを作成します。完成品をマウントまたは展開し、パッケージ内の実行ファイルを直接呼び出して起動確認を行います。各パッケージには SHA256 と SPDX SBOM を添付します。信頼できる `main`、バージョンタグ、手動実行では GitHub 署名付き SLSA 来歴証明と SBOM 証明も作成し、Pull Request の検証成果物には意図的に証明を発行しません。
+GitHub Actions は、ネイティブ Windows、`macos-15-intel`、Apple Silicon `macos-15`、`ubuntu-24.04` runner でパッケージを作成します。Pull Request、通常の `main` push、手動実行は読み取り専用の検証だけを行い、Release を作成しません。公開できるのは、N が 0 より大きい正確な `v1.1.0-rc.N` タグで、タグのコミットが `origin/main` の履歴に含まれる場合だけです。4 プラットフォームすべてが成功し、正確なファイル一覧、読みやすい MIT License、個別 SHA256、集約 `SHA256SUMS`、SPDX SBOM、GitHub の来歴／SBOM 証明を通過した後に、4 言語の Pre-release を 1 件だけ作成します。
+
+公開後は、既存の Flameblade Series Gateway が `products.json` に基づいて GitHub Releases を 1 時間ごとに読み取ります。重複するページ上書き処理は作らず、このリポジトリに WordPress 認証情報も要求しません。
 
 macOS では SHA256 を確認し、CPU に合う DMG を選び、App を「アプリケーション」へ移動してください。その後 Control キーを押しながら App をクリックし、「開く」を選びます。Apple Developer ID 署名と公証がないため警告が出ますが、OS 全体の安全機能は無効にしないでください。Linux ではハッシュ確認後に `chmod +x ファイル名.AppImage` を実行します。FUSE がない環境では `APPIMAGE_EXTRACT_AND_RUN=1 ./ファイル名.AppImage` を使用できます。
 

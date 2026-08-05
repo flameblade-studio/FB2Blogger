@@ -31,29 +31,33 @@
 1. 確認版本、四語文件、變更紀錄與官網同步內容。
 2. 在乾淨工作樹執行完整建置、CoreHarness、AuditHarness、PackagingAudit、Windows 封裝、原生預覽封裝啟動檢查、NuGet 弱點稽核與 Gitleaks。
 3. 由 Pull Request 合併，不直接推送受保護的 `main`。
-4. 等待 Cross-platform CI、Native Preview Packages、CodeQL、Dependency Review、Security Audit 與 Secret Defense 全部通過。
-5. Release 只附上可追溯至標籤提交的自動建置產物、SHA256、SBOM 與可信任工作流程的 GitHub 證明；沒有實機證據的平台只標示預覽。
+4. 等待固定名稱的 `Required - All platform packages` 聚合檢查，以及 Cross-platform CI、CodeQL、Dependency Review、Security Audit 與 Secret Defense 全部通過；聚合檢查同時要求 Windows、Mac Intel、Mac Apple Silicon、Linux 封裝成功，可直接列入 `main` required checks。
+5. `v1.1.0-rc.N` 候選版只接受 N 大於零、且標籤提交位於 `origin/main` 歷史中的 tag；PR、一般 `main` push 與手動工作流程只驗證，不發布。
+6. Windows 完整 EXE、Mac Intel／Apple Silicon DMG、Linux x64 AppImage 必須在同一工作流程全部成功，再核對精確清單、各成品內可讀的 MIT 授權、個別 SHA256、彙總 `SHA256SUMS`、SPDX SBOM、四語說明與 GitHub 證明後，原子化建立 Pre-release。官網由既有 Flameblade Series Gateway 每小時同步 GitHub Releases，不另寫一次性頁面覆蓋程式。
 
 ## 简体中文
 
 1. 确认版本、四语文档、变更记录与官网同步内容。
 2. 在干净工作树运行完整构建、CoreHarness、AuditHarness、PackagingAudit、Windows 打包、原生预览软件包启动检查、NuGet 漏洞审计与 Gitleaks。
 3. 通过 Pull Request 合并，不直接推送受保护的 `main`。
-4. 等待 Cross-platform CI、Native Preview Packages、CodeQL、Dependency Review、Security Audit 与 Secret Defense 全部通过。
-5. Release 只附上可追溯到标签提交的自动构建产物、SHA256、SBOM 与可信工作流的 GitHub 证明；没有实机证据的平台只标示预览。
+4. 等待固定名称的 `Required - All platform packages` 聚合检查，以及 Cross-platform CI、CodeQL、Dependency Review、Security Audit 与 Secret Defense 全部通过；聚合检查同时要求 Windows、Mac Intel、Mac Apple Silicon、Linux 打包成功，可直接加入 `main` required checks。
+5. `v1.1.0-rc.N` 候选版只接受 N 大于零、且标签提交属于 `origin/main` 历史的 tag；PR、普通 `main` push 与手动工作流只验证，不发布。
+6. Windows 完整 EXE、Mac Intel／Apple Silicon DMG、Linux x64 AppImage 必须在同一工作流中全部成功，再核对精确清单、各成品内可读的 MIT 许可证、单独 SHA256、汇总 `SHA256SUMS`、SPDX SBOM、四语说明与 GitHub 证明后，原子化建立 Pre-release。官网由现有 Flameblade Series Gateway 每小时同步 GitHub Releases，不另写一次性页面覆盖程序。
 
 ## English
 
 1. Confirm the version, four-language documentation, changelog, and official-site synchronization.
 2. From a clean worktree, run the full build, CoreHarness, AuditHarness, PackagingAudit, Windows publish, native preview package launch checks, NuGet vulnerability audit, and Gitleaks.
 3. Merge through a pull request; never push directly to protected `main`.
-4. Wait for Cross-platform CI, Native Preview Packages, CodeQL, Dependency Review, Security Audit, and Secret Defense to pass.
-5. Attach only automated artifacts, SHA256 files, SBOMs, and trusted-workflow GitHub attestations traceable to the tagged commit. Label a platform as preview when real-hardware evidence is unavailable.
+4. Wait for the stable `Required - All platform packages` aggregate check, Cross-platform CI, CodeQL, Dependency Review, Security Audit, and Secret Defense. The aggregate requires Windows, Intel Mac, Apple Silicon Mac, and Linux packages and is suitable for the `main` required-check rule.
+5. A `v1.1.0-rc.N` candidate requires N greater than zero and a tagged commit contained in `origin/main`; pull requests, ordinary `main` pushes, and manual runs validate only and never publish.
+6. The full Windows EXE, Intel and Apple Silicon Mac DMGs, and Linux x64 AppImage must all succeed in one workflow. Only after exact-inventory, readable MIT license payloads, individual SHA256, aggregate `SHA256SUMS`, SPDX SBOM, four-language notes, and GitHub attestation checks may the workflow atomically create a pre-release. The existing Flameblade Series Gateway synchronizes GitHub Releases hourly; do not add a one-off page-overwrite path.
 
 ## 日本語
 
 1. バージョン、4 言語の文書、変更履歴、公式サイトの同期内容を確認します。
 2. クリーンなワークツリーで、全体ビルド、CoreHarness、AuditHarness、PackagingAudit、Windows 配布ビルド、ネイティブ Preview パッケージの起動確認、NuGet 脆弱性監査、Gitleaks を実行します。
 3. 保護された `main` へ直接 push せず、Pull Request を通じてマージします。
-4. Cross-platform CI、Native Preview Packages、CodeQL、Dependency Review、Security Audit、Secret Defense がすべて成功するまで待ちます。
-5. タグ付きコミットへ追跡できる自動生成物、SHA256、SBOM、信頼できるワークフローの GitHub 証明だけを Release に添付し、実機証拠がないプラットフォームは Preview と明記します。
+4. 固定名の `Required - All platform packages` 集約チェック、Cross-platform CI、CodeQL、Dependency Review、Security Audit、Secret Defense がすべて成功するまで待ちます。この集約は Windows、Intel Mac、Apple Silicon Mac、Linux の全パッケージを要求し、`main` の required checks に登録できます。
+5. `v1.1.0-rc.N` 候補では N が 0 より大きく、タグのコミットが `origin/main` の履歴に含まれていることを必須とします。Pull Request、通常の `main` push、手動実行は検証だけを行い、公開しません。
+6. Windows 完全版 EXE、Intel／Apple Silicon Mac DMG、Linux x64 AppImage が同一ワークフローですべて成功し、正確な一覧、各成果物の読みやすい MIT License、個別 SHA256、集約 `SHA256SUMS`、SPDX SBOM、4 言語の説明、GitHub 証明を確認した後にだけ、Pre-release を原子的に作成します。公式サイトは既存の Flameblade Series Gateway が GitHub Releases を 1 時間ごとに同期し、単発のページ上書き処理は追加しません。

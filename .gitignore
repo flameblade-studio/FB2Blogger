@@ -2,6 +2,7 @@ bin/
 obj/
 artifacts/
 dist/
+release-artifacts/
 _manifest/
 .vs/
 .vscode/

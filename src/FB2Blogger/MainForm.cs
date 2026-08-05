@@ -28,7 +28,7 @@ internal sealed class MainForm : Form
     readonly AppSettings settings;
     CancellationTokenSource? cts;
 
-    public MainForm(AppSettings settings)
+    public MainForm(AppSettings settings, bool enableInteractiveStartup = true)
     {
         this.settings = settings;
         Text = "FB2Blogger"; Width = 900; Height = 650; MinimumSize = new(760, 560); StartPosition = FormStartPosition.CenterScreen; Font = new(L.FontName, 10);
@@ -47,7 +47,8 @@ internal sealed class MainForm : Form
         publishArticle.Click += PublishArticle;
         composeTitle.TextChanged += (_, _) => { if (cts is null) composePostKey = ""; };
         composeBody.TextChanged += (_, _) => { if (cts is null) composePostKey = ""; };
-        Shown += async (_, _) => { if (string.IsNullOrWhiteSpace(settings.ClientId)) await ConfigureFirstRunAsync(); else Say(L.T("configured_account", string.IsNullOrEmpty(settings.BlogName) ? L.T("google_account") : settings.BlogName)); };
+        if (enableInteractiveStartup)
+            Shown += async (_, _) => { if (string.IsNullOrWhiteSpace(settings.ClientId)) await ConfigureFirstRunAsync(); else Say(L.T("configured_account", string.IsNullOrEmpty(settings.BlogName) ? L.T("google_account") : settings.BlogName)); };
     }
 
     Control BuildComposer()
