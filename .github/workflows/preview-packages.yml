@@ -72,6 +72,7 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           RUN_NUMBER: ${{ github.run_number }}
+          RELEASE_TAG: ${{ needs.release-gate.outputs.tag }}
         run: bash packaging/resolve-metadata.sh
       - name: Run the complete Windows regression and packaging audits
         run: |
@@ -128,6 +129,7 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           RUN_NUMBER: ${{ github.run_number }}
+          RELEASE_TAG: ${{ needs.release-gate.outputs.tag }}
         run: bash packaging/resolve-metadata.sh
       - name: Run shared and packaging audits
         run: |
@@ -199,6 +201,7 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           RUN_NUMBER: ${{ github.run_number }}
+          RELEASE_TAG: ${{ needs.release-gate.outputs.tag }}
         run: bash packaging/resolve-metadata.sh
       - name: Run shared and packaging audits
         run: |
@@ -270,6 +273,7 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           RUN_NUMBER: ${{ github.run_number }}
+          RELEASE_TAG: ${{ needs.release-gate.outputs.tag }}
         run: bash packaging/resolve-metadata.sh
       - name: Run shared and packaging audits
         run: |

@@ -70,7 +70,9 @@ Check(linuxScript.Contains("8c8c91f762b412a19f4e8d2c4b35afb98f2d7c81", StringCom
 
 Check(metadataScript.Contains("REF_TYPE", StringComparison.Ordinal) &&
       metadataScript.Contains("PR-${PR_NUMBER", StringComparison.Ordinal) &&
-      metadataScript.Contains("preview.build", StringComparison.Ordinal),
+      metadataScript.Contains("preview.build", StringComparison.Ordinal) &&
+      metadataScript.Contains("RELEASE_TAG", StringComparison.Ordinal) &&
+      Regex.Matches(workflow, @"RELEASE_TAG: \$\{\{ needs\.release-gate\.outputs\.tag \}\}").Count >= 4,
     "Artifact labels distinguish tags, PR validation, and main-branch preview builds");
 Check(sbomScript.Contains("Microsoft.Sbom.DotNetTool", StringComparison.Ordinal) &&
       sbomScript.Contains("tool_version=\"4.1.5\"", StringComparison.Ordinal) &&
@@ -79,6 +81,8 @@ Check(sbomScript.Contains("Microsoft.Sbom.DotNetTool", StringComparison.Ordinal)
 
 Check(releaseGateScript.Contains("^v1\\.1\\.0-rc\\.([1-9][0-9]*)$", StringComparison.Ordinal) &&
       releaseGateScript.Contains("git merge-base --is-ancestor", StringComparison.Ordinal) &&
+      releaseGateScript.Contains("release_tag=\"\"", StringComparison.Ordinal) &&
+      releaseGateScript.Contains("release_tag=\"${ref_name}\"", StringComparison.Ordinal) &&
       releaseGateScript.Contains("build_commit=%s", StringComparison.Ordinal) &&
       workflow.Contains("+refs/heads/main:refs/remotes/origin/main", StringComparison.Ordinal),
     "Release authority requires an exact positive RC tag whose commit is contained in origin/main");
