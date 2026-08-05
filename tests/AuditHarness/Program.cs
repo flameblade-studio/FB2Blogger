@@ -5,10 +5,59 @@ using System.IO.Compression;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 var failures = new List<string>();
 void Check(bool condition, string name) { Console.WriteLine($"{(condition ? "PASS" : "FAIL")} {name}"); if (!condition) failures.Add(name); }
 var assembly = Assembly.Load("FB2Blogger");
+
+foreach (var readmeName in new[] { "README.md", "README.zh-CN.md", "README.en.md", "README.ja.md" })
+{
+    var readme = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), readmeName));
+    Check(readme.Contains("actions/workflows/ci.yml/badge.svg", StringComparison.Ordinal), $"{readmeName} shows real Windows CI status");
+    Check(readme.Contains("img.shields.io/github/v/release/hitoshic1982/FB2Blogger", StringComparison.Ordinal), $"{readmeName} shows the latest release");
+    Check(readme.Contains("license-MIT-blue.svg", StringComparison.Ordinal), $"{readmeName} shows the MIT license");
+    Check(readme.Contains("https://buymeacoffee.com/flameblade_studio", StringComparison.Ordinal) && readme.Contains("https://www.paypal.com/paypalme/flamebladestudio", StringComparison.OrdinalIgnoreCase), $"{readmeName} includes both voluntary support links");
+    Check(!readme.Contains("\n+<p align=\"center\">", StringComparison.Ordinal), $"{readmeName} has no stray patch marker");
+}
+
+// Localization: every supported language must expose the same complete key set.
+var localizer = assembly.GetType("FB2Blogger.L", true)!;
+var supportedCodes = ((IEnumerable)localizer.GetProperty("SupportedCodes", BindingFlags.Static | BindingFlags.NonPublic)!.GetValue(null)!).Cast<string>().ToArray();
+Check(supportedCodes.SequenceEqual(new[] { "zh-TW", "zh-CN", "en", "ja" }), "Four interface languages are available in the intended order");
+var keysMethod = localizer.GetMethod("Keys", BindingFlags.Static | BindingFlags.NonPublic)!;
+var languageKeys = supportedCodes.ToDictionary(code => code, code => ((IEnumerable)keysMethod.Invoke(null, new object[] { code })!).Cast<string>().OrderBy(key => key).ToArray());
+Check(languageKeys.Values.All(keys => keys.SequenceEqual(languageKeys["en"])), "All interface languages contain the same translation keys");
+Check(languageKeys["en"].Length >= 120, "Localization covers setup, Google authorization, migration reports, and safety messages");
+var configureLanguage = localizer.GetMethod("Configure", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)!;
+var languageProperty = localizer.GetProperty("Language", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)!;
+var translate = localizer.GetMethod("T", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)!;
+foreach (var code in supportedCodes)
+{
+    configureLanguage.Invoke(null, new object?[] { code });
+    Check((string)languageProperty.GetValue(null)! == code, $"Language selection applies: {code}");
+    Check(languageKeys[code].All(key => !string.Equals((string)translate.Invoke(null, new object[] { key, Array.Empty<object>() })!, key, StringComparison.Ordinal)), $"Every localization key resolves in {code}");
+}
+configureLanguage.Invoke(null, new object?[] { "unsupported" });
+Check(supportedCodes.Contains((string)languageProperty.GetValue(null)!), "Unsupported language safely falls back to Windows language detection");
+
+// Production user-facing East Asian text must live in Localization.cs.
+// This prevents a future status, error, or safety message from silently
+// becoming Traditional-Chinese-only again.
+var sourceRoot = Path.Combine(Directory.GetCurrentDirectory(), "src", "FB2Blogger");
+var eastAsianLiteral = new Regex(@"""(?:\\.|[^""\\])*[\u3040-\u30ff\u3400-\u9fff](?:\\.|[^""\\])*""", RegexOptions.CultureInvariant, TimeSpan.FromSeconds(2));
+var hardcodedUserText = new List<string>();
+foreach (var file in Directory.EnumerateFiles(sourceRoot, "*.cs", SearchOption.AllDirectories).Where(path => !path.EndsWith("Localization.cs", StringComparison.OrdinalIgnoreCase)))
+{
+    var source = File.ReadAllText(file);
+    foreach (Match match in eastAsianLiteral.Matches(source))
+    {
+        var line = source.AsSpan(0, match.Index).Count('\n') + 1;
+        hardcodedUserText.Add($"{Path.GetRelativePath(Directory.GetCurrentDirectory(), file)}:{line}");
+    }
+}
+if (hardcodedUserText.Count > 0) Console.Error.WriteLine("Unlocalized user-facing text: " + string.Join(", ", hardcodedUserText));
+Check(hardcodedUserText.Count == 0, "No production user-facing East Asian string bypasses the localization catalog");
 
 var root = Path.Combine(Path.GetTempPath(), "FB2Blogger-Audit-" + Guid.NewGuid().ToString("N"));
 Directory.CreateDirectory(root);

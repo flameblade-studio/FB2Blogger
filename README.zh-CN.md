@@ -1,4 +1,10 @@
 # FB2Blogger
+<p align="center">
+  <a href="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/ci.yml"><img alt="Windows CI" src="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/hitoshic1982/FB2Blogger/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/hitoshic1982/FB2Blogger?label=release"></a>
+  <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+</p>
+
 
 [繁體中文](README.md) · [简体中文](README.zh-CN.md) · [English](README.en.md) · [日本語](README.ja.md)
 
@@ -58,6 +64,15 @@ dotnet run --project tests/AuditHarness/AuditHarness.csproj -c Release
 ## 开源与责任
 
 本项目采用 [MIT License](LICENSE)。本工具与 Meta、Facebook、Google 或 Blogger 没有隶属或背书关系。请只迁移你有权处理的内容，并遵守平台条款、版权和个人信息法规。
+
+## 自由赞助
+
+FB2Blogger 的全部迁移功能均依 MIT 许可证免费开放，不会因是否赞助而限制功能。如果它帮助你保存了珍贵文章并减少手动整理时间，欢迎自愿支持炎剑文化工作室继续维护开源工具：
+
+- [Buy Me a Coffee](https://buymeacoffee.com/flameblade_studio)
+- [PayPal.Me](https://www.paypal.com/paypalme/flamebladestudio)
+
+不赞助也完全没有关系；报告问题、改进文档或提交 PR，同样是重要的支持。
 
 作者：CHOU MING HUA／炎剑文化工作室 · [官方网站](https://www.flamebladestudio.com.tw/)
 

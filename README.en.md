@@ -1,4 +1,10 @@
 # FB2Blogger
+<p align="center">
+  <a href="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/ci.yml"><img alt="Windows CI" src="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/hitoshic1982/FB2Blogger/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/hitoshic1982/FB2Blogger?label=release"></a>
+  <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+</p>
+
 
 [繁體中文](README.md) · [简体中文](README.zh-CN.md) · [English](README.en.md) · [日本語](README.ja.md)
 
@@ -60,6 +66,15 @@ dotnet run --project tests/AuditHarness/AuditHarness.csproj -c Release
 Licensed under the [MIT License](LICENSE). Contributions and security-minded reviews are welcome.
 
 This independent project is not affiliated with or endorsed by Meta, Facebook, Google, or Blogger. Migrate only content you are authorized to handle, and comply with platform terms, copyright, and privacy laws.
+
+## Voluntary support
+
+Every FB2Blogger migration feature remains free under the MIT License. Donations never unlock or restrict functionality. If the app helped preserve your writing or saved hours of manual work, you may voluntarily support Flameblade Studio's continued open-source maintenance:
+
+- [Buy Me a Coffee](https://buymeacoffee.com/flameblade_studio)
+- [PayPal.Me](https://www.paypal.com/paypalme/flamebladestudio)
+
+Support is never required. Bug reports, documentation improvements, and pull requests are equally valuable contributions.
 
 Author: CHOU MING HUA / Flameblade Studio · [Official website](https://www.flamebladestudio.com.tw/)
 

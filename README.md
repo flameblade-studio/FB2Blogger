@@ -1,4 +1,10 @@
 # FB2Blogger
+<p align="center">
+  <a href="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/ci.yml"><img alt="Windows CI" src="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/hitoshic1982/FB2Blogger/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/hitoshic1982/FB2Blogger?label=release"></a>
+  <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+</p>
+
 
 [繁體中文](README.md) · [简体中文](README.zh-CN.md) · [English](README.en.md) · [日本語](README.ja.md)
 
@@ -62,6 +68,15 @@ dotnet publish src/FB2Blogger/FB2Blogger.csproj -c Release -r win-x64 --self-con
 本專案採 [MIT License](LICENSE)。歡迎檢查原始碼、回報問題及提交 PR。
 
 這是獨立開源工具，與 Meta、Facebook、Google 或 Blogger 無隸屬或背書關係。請只移轉你有權處理的內容，並遵守各平台條款、著作權與個資法規。
+
+## 自由贊助
+
+FB2Blogger 的所有搬家功能都依 MIT 授權免費開放，不會因為是否贊助而限制功能。如果它幫你保住珍貴文章、減少手動整理時間，歡迎自由支持炎劍文化工作室繼續維護開源工具：
+
+- [Buy Me a Coffee](https://buymeacoffee.com/flameblade_studio)
+- [PayPal.Me](https://www.paypal.com/paypalme/flamebladestudio)
+
+不贊助也完全沒關係；回報問題、改善文件或提交 PR，同樣是重要的支持。
 
 作者：CHOU MING HUA／炎劍文化工作室 · [官方網站](https://www.flamebladestudio.com.tw/)
 

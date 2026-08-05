@@ -17,6 +17,7 @@ internal sealed record FacebookPost(
 
 internal sealed class AppSettings
 {
+    public string InterfaceLanguage { get; set; } = "";
     public string ClientId { get; set; } = "";
     public string ClientSecret { get; set; } = "";
     public string RefreshToken { get; set; } = "";
