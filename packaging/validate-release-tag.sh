@@ -4,12 +4,21 @@ set -euo pipefail
 event_name="${EVENT_NAME:?EVENT_NAME is required}"
 ref_type="${REF_TYPE:?REF_TYPE is required}"
 ref_name="${REF_NAME:-}"
+input_tag="${INPUT_TAG:-}"
 tag_commit="${TAG_COMMIT:?TAG_COMMIT is required}"
 main_ref="${MAIN_REF:-origin/main}"
 publish="false"
 resolved_commit="$(git rev-parse "${tag_commit}^{commit}")"
 
-if [[ "${event_name}" == "push" && "${ref_type}" == "tag" ]]; then
+if [[ "${event_name}" == "workflow_dispatch" && -n "${input_tag}" ]]; then
+  ref_name="${input_tag}"
+  git fetch --force --no-tags origin "refs/tags/${ref_name}:refs/tags/${ref_name}"
+  tag_commit="refs/tags/${ref_name}"
+  resolved_commit="$(git rev-parse "${tag_commit}^{commit}")"
+  ref_type="tag"
+fi
+
+if [[ ( "${event_name}" == "push" || "${event_name}" == "workflow_dispatch" ) && "${ref_type}" == "tag" ]]; then
   if [[ ! "${ref_name}" =~ ^v1\.1\.0-rc\.([1-9][0-9]*)$ ]]; then
     echo "Only v1.1.0-rc.N tags with N greater than zero may publish this release line: ${ref_name}" >&2
     exit 2

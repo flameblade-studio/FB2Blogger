@@ -7,6 +7,11 @@ on:
       - 'v1.1.0-rc.*'
   pull_request:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing v1.1.0-rc.N tag to rebuild and publish after a recoverable release-only failure
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -40,6 +45,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           REF_TYPE: ${{ github.ref_type }}
           REF_NAME: ${{ github.ref_name }}
+          INPUT_TAG: ${{ inputs.tag }}
           TAG_COMMIT: ${{ github.sha }}
           MAIN_REF: origin/main
         run: bash packaging/validate-release-tag.sh
@@ -329,7 +335,7 @@ jobs:
 
   publish-prerelease:
     name: Verify, attest, and publish the complete release candidate
-    if: github.event_name == 'push' && github.ref_type == 'tag' && needs.release-gate.outputs.publish == 'true'
+    if: needs.release-gate.outputs.publish == 'true'
     needs: [release-gate, windows-release, macos-x64-preview, macos-arm64-preview, linux-preview]
     runs-on: ubuntu-24.04
     permissions:
@@ -435,7 +441,8 @@ jobs:
           RELEASE_TAG: ${{ needs.release-gate.outputs.tag }}
         run: |
           set -euo pipefail
-          if gh release view "${RELEASE_TAG}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+          existing_id="$(gh api --paginate "repos/${GITHUB_REPOSITORY}/releases?per_page=100" --jq ".[] | select(.tag_name == \"${RELEASE_TAG}\") | .id" | head -n 1)"
+          if [[ -n "${existing_id}" ]]; then
             echo "Release ${RELEASE_TAG} already exists; refusing to overwrite it." >&2
             exit 2
           fi
@@ -451,16 +458,15 @@ jobs:
             exit "${status}"
           }
           trap cleanup_failed_draft EXIT
-          gh release create "${RELEASE_TAG}" \
+          gh release create "${RELEASE_TAG}" "${assets[@]}" \
             --repo "${GITHUB_REPOSITORY}" \
             --verify-tag \
             --draft \
             --prerelease \
             --title "FB2Blogger ${RELEASE_TAG}" \
             --notes-file "docs/releases/${RELEASE_TAG}.md"
-          release_id="$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${RELEASE_TAG}" --jq '.id')"
+          release_id="$(gh api --paginate "repos/${GITHUB_REPOSITORY}/releases?per_page=100" --jq ".[] | select(.tag_name == \"${RELEASE_TAG}\" and .draft == true) | .id" | head -n 1)"
           test -n "${release_id}"
-          gh release upload "${RELEASE_TAG}" "${assets[@]}" --repo "${GITHUB_REPOSITORY}"
           mapfile -t actual_assets < <(gh api --paginate "repos/${GITHUB_REPOSITORY}/releases/${release_id}/assets" --jq '.[].name' | LC_ALL=C sort)
           mapfile -t expected_assets < <(printf '%s\n' "${assets[@]##*/}" | LC_ALL=C sort)
           test "$(printf '%s\n' "${actual_assets[@]}")" = "$(printf '%s\n' "${expected_assets[@]}")" || {
