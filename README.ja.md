@@ -1,4 +1,10 @@
 # FB2Blogger
+<p align="center">
+  <a href="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/ci.yml"><img alt="Windows CI" src="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/hitoshic1982/FB2Blogger/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/hitoshic1982/FB2Blogger?label=release"></a>
+  <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+</p>
+
 
 [繁體中文](README.md) · [简体中文](README.zh-CN.md) · [English](README.en.md) · [日本語](README.ja.md)
 
@@ -58,5 +64,14 @@ dotnet run --project tests/AuditHarness/AuditHarness.csproj -c Release
 ## ライセンスと責任
 
 [MIT License](LICENSE) で公開しています。本プロジェクトは Meta、Facebook、Google、Blogger と提携または公認されたものではありません。権利を持つコンテンツだけを移行し、各サービスの規約、著作権、個人情報保護法令を守ってください。
+
+## 任意のご支援
+
+FB2Blogger の移行機能はすべて MIT ライセンスのもとで無償公開されており、支援の有無によって機能が制限されることはありません。大切な記事の保存や手作業の削減に役立った場合は、炎剣文化工作室によるオープンソース保守を任意でご支援いただけます。
+
+- [Buy Me a Coffee](https://buymeacoffee.com/flameblade_studio)
+- [PayPal.Me](https://www.paypal.com/paypalme/flamebladestudio)
+
+ご支援は必須ではありません。不具合報告、文書の改善、プルリクエストも同じく大切な貢献です。
 
 作者：CHOU MING HUA／Flameblade Studio · [公式サイト](https://www.flamebladestudio.com.tw/)

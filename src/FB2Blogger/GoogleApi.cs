@@ -27,14 +27,14 @@ internal sealed class GoogleApi : IDisposable
         if (!string.IsNullOrWhiteSpace(settings.RefreshToken) && settings.AuthorizedScopeVersion >= ScopeVersion)
         {
             try { await RefreshAsync(ct); return; }
-            catch { log("已保存的 Google 登入失效，需要重新授權一次。 "); }
+            catch { log(L.T("saved_google_login_expired")); }
         }
         await InteractiveAuthorizeAsync(ct);
     }
 
     async Task InteractiveAuthorizeAsync(CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(settings.ClientId)) throw new InvalidOperationException("尚未設定 Google OAuth Client ID。");
+        if (string.IsNullOrWhiteSpace(settings.ClientId)) throw new InvalidOperationException(L.T("google_client_id_missing"));
         var verifier = Base64(RandomNumberGenerator.GetBytes(48));
         var challenge = Base64(SHA256.HashData(Encoding.ASCII.GetBytes(verifier)));
         var state = Base64(RandomNumberGenerator.GetBytes(24));
@@ -44,20 +44,20 @@ internal sealed class GoogleApi : IDisposable
                   $"client_id={Uri.EscapeDataString(settings.ClientId)}&redirect_uri={Uri.EscapeDataString(redirect)}&response_type=code" +
                   $"&scope={Uri.EscapeDataString(Scopes)}&access_type=offline&prompt=consent&code_challenge={challenge}&code_challenge_method=S256&state={state}";
         Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
-        log("第一次使用：請在瀏覽器允許 Google 存取。完成後以後會自動登入。");
+        log(L.T("google_authorize_in_browser"));
         var context = await listener.GetContextAsync().WaitAsync(TimeSpan.FromMinutes(10), ct);
         var code = context.Request.QueryString["code"];
         var returnedState = context.Request.QueryString["state"];
-        var reply = Encoding.UTF8.GetBytes("<html><meta charset='utf-8'><body style='font-family:sans-serif;padding:40px'><h2>授權完成</h2><p>請關閉此頁並回到 FB2Blogger。</p></body></html>");
+        var reply = Encoding.UTF8.GetBytes($"<html><meta charset='utf-8'><body style='font-family:sans-serif;padding:40px'><h2>{WebUtility.HtmlEncode(L.T("oauth_complete_title"))}</h2><p>{WebUtility.HtmlEncode(L.T("oauth_complete_body"))}</p></body></html>");
         context.Response.ContentType = "text/html; charset=utf-8"; context.Response.ContentLength64 = reply.Length;
         await context.Response.OutputStream.WriteAsync(reply, ct); context.Response.Close(); listener.Stop();
-        if (string.IsNullOrEmpty(code) || returnedState != state) throw new InvalidOperationException("Google 授權被取消或驗證失敗。");
+        if (string.IsNullOrEmpty(code) || returnedState != state) throw new InvalidOperationException(L.T("google_authorization_failed"));
 
         var form = new Dictionary<string, string> { ["client_id"] = settings.ClientId, ["code"] = code, ["code_verifier"] = verifier, ["redirect_uri"] = redirect, ["grant_type"] = "authorization_code" };
         if (!string.IsNullOrWhiteSpace(settings.ClientSecret)) form["client_secret"] = settings.ClientSecret;
         var json = await PostTokenAsync(form, ct);
         ApplyToken(json);
-        settings.RefreshToken = json["refresh_token"]?.GetValue<string>() ?? throw new InvalidOperationException("Google 未提供長期登入憑證，請撤銷應用程式權限後重試。");
+        settings.RefreshToken = json["refresh_token"]?.GetValue<string>() ?? throw new InvalidOperationException(L.T("google_refresh_token_missing"));
         settings.AuthorizedScopeVersion = ScopeVersion;
         SettingsStore.Save(settings);
     }
@@ -74,13 +74,13 @@ internal sealed class GoogleApi : IDisposable
         using var formContent = new FormUrlEncodedContent(form);
         using var response = await http.PostAsync("https://oauth2.googleapis.com/token", formContent, ct);
         var body = await response.Content.ReadAsStringAsync(ct);
-        if (!response.IsSuccessStatusCode) throw new InvalidOperationException("Google 登入失敗：" + FriendlyError(body));
-        return JsonNode.Parse(body) ?? throw new InvalidOperationException("Google 登入回應無效。");
+        if (!response.IsSuccessStatusCode) throw new InvalidOperationException(L.T("google_sign_in_failed", FriendlyError(body)));
+        return JsonNode.Parse(body) ?? throw new InvalidOperationException(L.T("google_sign_in_invalid_response"));
     }
 
     void ApplyToken(JsonNode json)
     {
-        accessToken = json["access_token"]?.GetValue<string>() ?? throw new InvalidOperationException("Google 沒有回傳 access token。");
+        accessToken = json["access_token"]?.GetValue<string>() ?? throw new InvalidOperationException(L.T("google_access_token_missing"));
         tokenExpires = DateTime.UtcNow.AddSeconds(json["expires_in"]?.GetValue<int>() ?? 3500);
     }
 
@@ -95,7 +95,7 @@ internal sealed class GoogleApi : IDisposable
     public async Task<List<BlogInfo>> GetBlogsAsync(CancellationToken ct)
     {
         using var response = await SendAsync(HttpMethod.Get, "https://www.googleapis.com/blogger/v3/users/self/blogs", null, ct);
-        var body = await response.Content.ReadAsStringAsync(ct); Ensure(response, body, "讀取 Blogger");
+        var body = await response.Content.ReadAsStringAsync(ct); Ensure(response, body, L.T("action_read_blogger"));
         return JsonNode.Parse(body)?["items"]?.AsArray().Select(x => new BlogInfo(x!["id"]!.GetValue<string>(), x["name"]!.GetValue<string>())).ToList() ?? [];
     }
 
@@ -106,11 +106,11 @@ internal sealed class GoogleApi : IDisposable
         content.Add(new StringContent(new JsonObject { ["name"] = displayName ?? Path.GetFileName(path) }.ToJsonString(), Encoding.UTF8, "application/json"));
         await using var file = File.OpenRead(path); var stream = new StreamContent(file); stream.Headers.ContentType = new MediaTypeHeaderValue(Mime(path)); content.Add(stream);
         using var response = await SendAsync(HttpMethod.Post, "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id", content, ct);
-        var body = await response.Content.ReadAsStringAsync(ct); Ensure(response, body, "上傳圖片");
-        var id = JsonNode.Parse(body)?["id"]?.GetValue<string>() ?? throw new InvalidOperationException("Google Drive 未回傳圖片 ID。");
+        var body = await response.Content.ReadAsStringAsync(ct); Ensure(response, body, L.T("action_upload_image"));
+        var id = JsonNode.Parse(body)?["id"]?.GetValue<string>() ?? throw new InvalidOperationException(L.T("drive_image_id_missing"));
         using var permission = new StringContent(new JsonObject { ["type"] = "anyone", ["role"] = "reader" }.ToJsonString(), Encoding.UTF8, "application/json");
         using var permResponse = await SendAsync(HttpMethod.Post, $"https://www.googleapis.com/drive/v3/files/{id}/permissions", permission, ct);
-        var permBody = await permResponse.Content.ReadAsStringAsync(ct); Ensure(permResponse, permBody, "設定圖片顯示權限");
+        var permBody = await permResponse.Content.ReadAsStringAsync(ct); Ensure(permResponse, permBody, L.T("action_set_image_permission"));
         return $"https://drive.google.com/thumbnail?id={id}&sz=w1600";
     }
 
@@ -121,7 +121,7 @@ internal sealed class GoogleApi : IDisposable
         {
             var url = "https://www.googleapis.com/drive/v3/files?spaces=drive&q=trashed%3Dfalse&fields=nextPageToken%2Cfiles(id%2Cname%2Csize%2Cmd5Checksum%2CmimeType)&pageSize=1000";
             if (pageToken.Length > 0) url += "&pageToken=" + Uri.EscapeDataString(pageToken);
-            using var response = await SendAsync(HttpMethod.Get, url, null, ct); var body = await response.Content.ReadAsStringAsync(ct); Ensure(response, body, "檢查 Drive 圖片");
+            using var response = await SendAsync(HttpMethod.Get, url, null, ct); var body = await response.Content.ReadAsStringAsync(ct); Ensure(response, body, L.T("action_check_drive_images"));
             var root = JsonNode.Parse(body); pageToken = root?["nextPageToken"]?.GetValue<string>() ?? "";
             foreach (var item in root?["files"]?.AsArray() ?? [])
             {
@@ -137,7 +137,7 @@ internal sealed class GoogleApi : IDisposable
     {
         await using var file = File.OpenRead(path); using var content = new StreamContent(file); content.Headers.ContentType = new MediaTypeHeaderValue(Mime(path));
         using var response = await SendAsync(HttpMethod.Patch, $"https://www.googleapis.com/upload/drive/v3/files/{Uri.EscapeDataString(fileId)}?uploadType=media", content, ct);
-        var body = await response.Content.ReadAsStringAsync(ct); Ensure(response, body, "壓縮既有 Drive 圖片");
+        var body = await response.Content.ReadAsStringAsync(ct); Ensure(response, body, L.T("action_update_drive_image"));
     }
 
     public async Task<string> UploadVideoAsync(string path, string title, string description, string privacy, CancellationToken ct)
@@ -145,12 +145,12 @@ internal sealed class GoogleApi : IDisposable
         var metadata = new JsonObject { ["snippet"] = new JsonObject { ["title"] = title, ["description"] = description }, ["status"] = new JsonObject { ["privacyStatus"] = privacy, ["selfDeclaredMadeForKids"] = false } };
         using var initContent = new StringContent(metadata.ToJsonString(), Encoding.UTF8, "application/json");
         using var init = await SendAsync(HttpMethod.Post, "https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status", initContent, ct);
-        var initBody = await init.Content.ReadAsStringAsync(ct); Ensure(init, initBody, "啟動 YouTube 上傳");
-        var uploadUrl = init.Headers.Location ?? throw new InvalidOperationException("YouTube 未提供上傳網址。");
+        var initBody = await init.Content.ReadAsStringAsync(ct); Ensure(init, initBody, L.T("action_start_youtube_upload"));
+        var uploadUrl = init.Headers.Location ?? throw new InvalidOperationException(L.T("youtube_upload_url_missing"));
         await using var file = File.OpenRead(path); using var video = new StreamContent(file); video.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
         using var response = await SendAsync(HttpMethod.Put, uploadUrl.ToString(), video, ct, HttpCompletionOption.ResponseHeadersRead);
-        var body = await response.Content.ReadAsStringAsync(ct); Ensure(response, body, "上傳 YouTube 影片");
-        return JsonNode.Parse(body)?["id"]?.GetValue<string>() ?? throw new InvalidOperationException("YouTube 未回傳影片 ID。");
+        var body = await response.Content.ReadAsStringAsync(ct); Ensure(response, body, L.T("action_upload_youtube_video"));
+        return JsonNode.Parse(body)?["id"]?.GetValue<string>() ?? throw new InvalidOperationException(L.T("youtube_video_id_missing"));
     }
 
     public async Task<string> CreatePostAsync(string blogId, FacebookPost post, string html, bool draft, CancellationToken ct)
@@ -165,11 +165,11 @@ internal sealed class GoogleApi : IDisposable
             var body = await response.Content.ReadAsStringAsync(ct);
             if (response.IsSuccessStatusCode)
                 return JsonNode.Parse(body)?["id"]?.GetValue<string>() ?? "";
-            if (!IsQuota(response, body)) Ensure(response, body, "建立 Blogger 文章");
+            if (!IsQuota(response, body)) Ensure(response, body, L.T("action_create_blogger_post"));
             if (attempt >= delays.Length)
-                throw new GoogleQuotaException("Blogger 目前的新增文章配額已用完。程式已安全停止；請稍後或明天再選同一個 ZIP，會從未完成處繼續。");
+                throw new GoogleQuotaException(L.T("blogger_post_quota_exhausted"));
             var seconds = response.Headers.RetryAfter?.Delta is { } retry ? Math.Max(delays[attempt], (int)retry.TotalSeconds) : delays[attempt];
-            log($"Blogger 暫時限制速度，等待 {seconds} 秒後自動重試（{attempt + 1}/{delays.Length}）…");
+            log(L.T("blogger_rate_limited", seconds, attempt + 1, delays.Length));
             await Task.Delay(TimeSpan.FromSeconds(seconds), ct);
         }
     }
@@ -181,7 +181,7 @@ internal sealed class GoogleApi : IDisposable
         {
             var url = $"https://www.googleapis.com/blogger/v3/blogs/{blogId}/posts?fetchBodies=true&fetchImages=false&maxResults=500&status=live&status=draft";
             if (pageToken.Length > 0) url += "&pageToken=" + Uri.EscapeDataString(pageToken);
-            using var response = await SendAsync(HttpMethod.Get, url, null, ct); var body = await response.Content.ReadAsStringAsync(ct); Ensure(response, body, "檢查 Blogger 文章");
+            using var response = await SendAsync(HttpMethod.Get, url, null, ct); var body = await response.Content.ReadAsStringAsync(ct); Ensure(response, body, L.T("action_check_blogger_posts"));
             var root = JsonNode.Parse(body); pageToken = root?["nextPageToken"]?.GetValue<string>() ?? "";
             foreach (var item in root?["items"]?.AsArray() ?? [])
             {
@@ -208,7 +208,7 @@ internal sealed class GoogleApi : IDisposable
     public async Task<List<YouTubeVideoInfo>> GetUploadedVideosAsync(CancellationToken ct)
     {
         using var channelResponse = await SendAsync(HttpMethod.Get, "https://www.googleapis.com/youtube/v3/channels?part=contentDetails&mine=true", null, ct);
-        var channelBody = await channelResponse.Content.ReadAsStringAsync(ct); Ensure(channelResponse, channelBody, "檢查 YouTube 頻道");
+        var channelBody = await channelResponse.Content.ReadAsStringAsync(ct); Ensure(channelResponse, channelBody, L.T("action_check_youtube_channel"));
         var playlist = JsonNode.Parse(channelBody)?["items"]?[0]?["contentDetails"]?["relatedPlaylists"]?["uploads"]?.GetValue<string>();
         if (string.IsNullOrEmpty(playlist)) return [];
         var ids = new List<string>(); string pageToken = "";
@@ -216,7 +216,7 @@ internal sealed class GoogleApi : IDisposable
         {
             var url = $"https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId={Uri.EscapeDataString(playlist)}";
             if (pageToken.Length > 0) url += "&pageToken=" + Uri.EscapeDataString(pageToken);
-            using var response = await SendAsync(HttpMethod.Get, url, null, ct); var body = await response.Content.ReadAsStringAsync(ct); Ensure(response, body, "讀取 YouTube 上傳紀錄");
+            using var response = await SendAsync(HttpMethod.Get, url, null, ct); var body = await response.Content.ReadAsStringAsync(ct); Ensure(response, body, L.T("action_read_youtube_uploads"));
             var root = JsonNode.Parse(body); pageToken = root?["nextPageToken"]?.GetValue<string>() ?? "";
             foreach (var item in root?["items"]?.AsArray() ?? [])
             {
@@ -230,7 +230,7 @@ internal sealed class GoogleApi : IDisposable
         {
             var url = "https://www.googleapis.com/youtube/v3/videos?part=snippet,fileDetails&id=" + Uri.EscapeDataString(string.Join(',', batch));
             using var response = await SendAsync(HttpMethod.Get, url, null, ct); var body = await response.Content.ReadAsStringAsync(ct);
-            Ensure(response, body, "讀取 YouTube 影片指紋");
+            Ensure(response, body, L.T("action_read_youtube_fingerprints"));
             foreach (var item in JsonNode.Parse(body)?["items"]?.AsArray() ?? [])
             {
                 var snippet = item?["snippet"]; var details = item?["fileDetails"];
@@ -248,7 +248,7 @@ internal sealed class GoogleApi : IDisposable
     }
 
     static bool IsQuota(HttpResponseMessage response, string body) => response.StatusCode == HttpStatusCode.TooManyRequests || body.Contains("RESOURCE_EXHAUSTED", StringComparison.OrdinalIgnoreCase) || body.Contains("Resource has been exhausted", StringComparison.OrdinalIgnoreCase) || body.Contains("quota", StringComparison.OrdinalIgnoreCase) || body.Contains("rateLimitExceeded", StringComparison.OrdinalIgnoreCase);
-    static void Ensure(HttpResponseMessage response, string body, string action) { if (!response.IsSuccessStatusCode) { var message = FriendlyError(body); if (IsQuota(response, body)) throw new GoogleQuotaException($"{action}受到 Google 配額限制：{message}"); throw new InvalidOperationException($"{action}失敗：{message}"); } }
+    static void Ensure(HttpResponseMessage response, string body, string action) { if (!response.IsSuccessStatusCode) { var message = FriendlyError(body); if (IsQuota(response, body)) throw new GoogleQuotaException(L.T("google_action_quota", action, message)); throw new InvalidOperationException(L.T("action_failed", action, message)); } }
     static string FriendlyError(string body) { try { return JsonNode.Parse(body)?["error"]?["message"]?.GetValue<string>() ?? body; } catch { return body.Length > 500 ? body[..500] : body; } }
     static string Mime(string path) => Path.GetExtension(path).ToLowerInvariant() switch { ".png" => "image/png", ".gif" => "image/gif", ".webp" => "image/webp", ".bmp" => "image/bmp", _ => "image/jpeg" };
     static string Base64(byte[] bytes) => Convert.ToBase64String(bytes).TrimEnd('=').Replace('+', '-').Replace('/', '_');

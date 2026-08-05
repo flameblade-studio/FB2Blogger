@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>FB2Blogger</AssemblyName>
     <RootNamespace>FB2Blogger</RootNamespace>
-    <Version>1.0.0</Version>
+    <Version>1.1.0</Version>
     <Authors>CHOU MING HUA / Flameblade Studio</Authors>
     <Company>Flameblade Studio</Company>
     <Product>FB2Blogger</Product>
