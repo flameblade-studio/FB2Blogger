@@ -79,6 +79,7 @@ Check(sbomScript.Contains("Microsoft.Sbom.DotNetTool", StringComparison.Ordinal)
 
 Check(releaseGateScript.Contains("^v1\\.1\\.0-rc\\.([1-9][0-9]*)$", StringComparison.Ordinal) &&
       releaseGateScript.Contains("git merge-base --is-ancestor", StringComparison.Ordinal) &&
+      releaseGateScript.Contains("build_commit=%s", StringComparison.Ordinal) &&
       workflow.Contains("+refs/heads/main:refs/remotes/origin/main", StringComparison.Ordinal),
     "Release authority requires an exact positive RC tag whose commit is contained in origin/main");
 Check(workflow.Contains("permissions:\n  contents: read", StringComparison.Ordinal) &&
@@ -136,9 +137,14 @@ Check(releaseAssetsScript.Contains("FB2Blogger.exe", StringComparison.Ordinal) &
     "The release job requires the exact four-platform inventory and creates aggregate SHA256SUMS");
 Check(workflow.Contains("gh release create", StringComparison.Ordinal) &&
       workflow.Contains("--verify-tag", StringComparison.Ordinal) &&
+      workflow.Contains("--draft", StringComparison.Ordinal) &&
       workflow.Contains("--prerelease", StringComparison.Ordinal) &&
+      workflow.Contains("gh release upload", StringComparison.Ordinal) &&
+      workflow.Contains("draft=false", StringComparison.Ordinal) &&
+      workflow.Contains("Release tag moved after validation", StringComparison.Ordinal) &&
+      workflow.Contains("ref: ${{ needs.release-gate.outputs.build_commit }}", StringComparison.Ordinal) &&
       workflow.Contains("--notes-file", StringComparison.Ordinal),
-    "The guarded workflow creates one curated GitHub pre-release without overwriting an existing release");
+    "The guarded workflow locks one reviewed commit and atomically publishes one exact curated GitHub pre-release");
 Check(workflow.Contains("*.dmg", StringComparison.Ordinal) &&
       workflow.Contains("*.AppImage", StringComparison.Ordinal) &&
       !Regex.IsMatch(workflow + macScript + linuxScript, @"(?i)zip[^\n]*(?:\.dmg|\.AppImage)"),
