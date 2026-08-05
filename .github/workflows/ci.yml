@@ -1,20 +1,48 @@
-name: Windows CI
+name: Cross-platform CI
 
 on:
   push:
     branches: [main]
+    tags:
+      # Covers stable and prerelease tags such as v1.1.0 and v1.1.0-rc.1.
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-*'
   pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: cross-platform-ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  validate:
+  cross-platform-core:
+    name: Core and preview (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        with:
+          dotnet-version: 10.0.x
+      - name: Build shared core
+        run: dotnet build src/FB2Blogger.Core/FB2Blogger.Core.csproj -c Release --nologo
+      - name: Run cross-platform core audit
+        run: dotnet run --project tests/CoreHarness/CoreHarness.csproj -c Release
+      - name: Build Avalonia preview shell
+        run: dotnet build src/FB2Blogger.Desktop/FB2Blogger.Desktop.csproj -c Release --nologo
+
+  windows-full-app:
+    name: Full Windows application
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-dotnet@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         with:
           dotnet-version: 10.0.x
       - name: Build
@@ -23,9 +51,30 @@ jobs:
         run: dotnet run --project tests/AuditHarness/AuditHarness.csproj -c Release
       - name: Publish portable executable
         run: dotnet publish src/FB2Blogger/FB2Blogger.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o artifacts
+      - name: Resolve artifact name
+        id: artifact_name
+        shell: pwsh
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          if ($env:REF_TYPE -eq 'tag' -and $env:REF_NAME) {
+            $label = $env:REF_NAME
+          } elseif ($env:EVENT_NAME -eq 'pull_request' -and $env:PR_NUMBER) {
+            $label = "PR-$($env:PR_NUMBER)-validation"
+          } else {
+            [xml]$project = Get-Content src/FB2Blogger/FB2Blogger.csproj -Raw
+            $version = @($project.Project.PropertyGroup.Version)[0]
+            $label = if ($version) { "v$version" } else { "build-$($env:RUN_NUMBER)" }
+          }
+          $safeLabel = $label -replace '[^0-9A-Za-z._-]', '-'
+          "artifact_name=FB2Blogger-$safeLabel-Windows-x64" >> $env:GITHUB_OUTPUT
       - name: Upload executable
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: FB2Blogger-v1.1.0-Windows-x64
+          name: ${{ steps.artifact_name.outputs.artifact_name }}
           path: artifacts/FB2Blogger.exe
 

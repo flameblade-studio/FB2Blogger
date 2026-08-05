@@ -36,7 +36,7 @@ internal static class CrashReporter
     {
         try
         {
-            var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "FB2Blogger Reports");
+            var folder = AppPaths.Current.ReportsDirectory;
             Directory.CreateDirectory(folder);
             var path = Path.Combine(folder, L.T("error_file", DateTime.Now.ToString("yyyyMMdd-HHmmss")));
             File.WriteAllText(path, error.ToString());

@@ -1,10 +1,16 @@
 # FB2Blogger
 <p align="center">
-  <a href="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/ci.yml"><img alt="Windows CI" src="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/ci.yml"><img alt="Cross-platform CI" src="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/codeql.yml"><img alt="CodeQL" src="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/codeql.yml/badge.svg"></a>
+  <a href="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/security-audit.yml"><img alt="Security Audit / NuGet" src="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/security-audit.yml/badge.svg"></a>
+  <a href="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/secret-defense.yml"><img alt="Secret Defense / Gitleaks" src="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/secret-defense.yml/badge.svg"></a>
   <a href="https://github.com/hitoshic1982/FB2Blogger/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/hitoshic1982/FB2Blogger?label=release"></a>
-  <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+  <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+  <img alt=".NET 10" src="https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet&amp;logoColor=white">
+  <img alt="Four interface languages" src="https://img.shields.io/badge/interface%20languages-4-informational">
 </p>
 
+> This project follows the [Flameblade Open Source Software Family Quality Standard](docs/RELEASE-PROCESS.md): real checks, four-language synchronization, traceable releases, and no regressions.
 
 [繁體中文](README.md) · [简体中文](README.zh-CN.md) · [English](README.en.md) · [日本語](README.ja.md)
 
@@ -27,6 +33,14 @@ The app reads a ZIP that you obtained through Facebook's official “Download yo
 - Uses a hidden migration marker to prevent duplicate imports.
 - Saves resumable progress and recovers corrupted progress data from a backup.
 - Blocks ZIP path traversal and never modifies the source ZIP or original images.
+
+## Platform status
+
+- **Windows:** the existing full WinForms edition keeps its current features, LocalAppData location, and DPAPI credential protection.
+- **macOS/Linux:** an Avalonia foundation preview can select, safely extract, and inspect a Facebook ZIP offline. Google authorization, media upload, and Blogger publishing are not connected yet, so this is not a production edition.
+- **Shared foundation:** models, parsing, safe extraction, post-content composition, migration state, and platform data paths now live in `FB2Blogger.Core`, which GitHub Actions builds and tests separately on Windows, macOS, and Linux.
+
+Passing CI is not evidence of real macOS or Linux hardware validation. The project owner currently has only Windows hardware, so production support still requires documented testing from contributors on those systems. See the [cross-platform foundation document](docs/CROSS-PLATFORM.md) for the exact matrix and security plan.
 
 ## Requirements
 
@@ -55,11 +69,14 @@ See [PRIVACY.md](PRIVACY.md) and [SECURITY.md](SECURITY.md).
 ## Build from source
 
 ```powershell
+dotnet build src/FB2Blogger.Core/FB2Blogger.Core.csproj -c Release
+dotnet run --project tests/CoreHarness/CoreHarness.csproj -c Release
+dotnet build src/FB2Blogger.Desktop/FB2Blogger.Desktop.csproj -c Release
 dotnet build src/FB2Blogger/FB2Blogger.csproj -c Release
 dotnet run --project tests/AuditHarness/AuditHarness.csproj -c Release
 ```
 
-.NET 10 SDK is required. Release builds are self-contained single-file executables, so end users do not need the .NET Runtime.
+.NET 10 SDK is required. Current production releases remain self-contained Windows executables; the Avalonia preview shell is not yet offered as a production download.
 
 ## Open source and responsibility
 

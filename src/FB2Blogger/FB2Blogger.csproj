@@ -18,4 +18,7 @@
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../FB2Blogger.Core/FB2Blogger.Core.csproj" />
+  </ItemGroup>
 </Project>

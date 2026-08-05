@@ -1,10 +1,16 @@
 # FB2Blogger
 <p align="center">
-  <a href="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/ci.yml"><img alt="Windows CI" src="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/ci.yml"><img alt="Cross-platform CI" src="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/codeql.yml"><img alt="CodeQL" src="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/codeql.yml/badge.svg"></a>
+  <a href="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/security-audit.yml"><img alt="Security Audit / NuGet" src="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/security-audit.yml/badge.svg"></a>
+  <a href="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/secret-defense.yml"><img alt="Secret Defense / Gitleaks" src="https://github.com/hitoshic1982/FB2Blogger/actions/workflows/secret-defense.yml/badge.svg"></a>
   <a href="https://github.com/hitoshic1982/FB2Blogger/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/hitoshic1982/FB2Blogger?label=release"></a>
-  <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+  <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+  <img alt=".NET 10" src="https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet&amp;logoColor=white">
+  <img alt="Four interface languages" src="https://img.shields.io/badge/interface%20languages-4-informational">
 </p>
 
+> 本プロジェクトは[炎剣オープンソース・ソフトウェア・ファミリー品質基準](docs/RELEASE-PROCESS.md)に従い、実証済みの検証、4 言語同期、追跡可能なリリース、既存機能の維持を徹底します。
 
 [繁體中文](README.md) · [简体中文](README.zh-CN.md) · [English](README.en.md) · [日本語](README.ja.md)
 
@@ -27,6 +33,14 @@ Facebook の公式ダウンロードデータに含まれる投稿・画像・�
 - 非表示の識別マーカーで重複インポートを防止。
 - 中断後の再開、進捗ファイル破損時のバックアップ復元に対応。
 - ZIP パストラバーサルを防止し、元の ZIP と画像を変更しない設計。
+
+## 3 OS 対応の進捗
+
+- **Windows：**従来の完全版 WinForms アプリは、既存機能、LocalAppData の保存場所、DPAPI による認証情報保護をそのまま維持します。
+- **macOS／Linux：**Avalonia の基礎プレビューでは、Facebook ZIP の選択、安全な展開、オフライン解析まで行えます。Google 認証、メディアのアップロード、Blogger 公開は未接続で、正式版ではありません。
+- **共通基盤：**モデル、解析、安全な展開、記事内容の生成、移行状態、OS に応じたデータ保存先を `FB2Blogger.Core` に分離し、GitHub Actions で Windows・macOS・Linux ごとにビルドとテストを行います。
+
+CI 成功は macOS／Linux 実機検証の代わりにはなりません。プロジェクト所有者の手元には現在 Windows PC しかないため、正式対応には各 OS の協力者による実環境テスト記録が必要です。正確な機能表と安全設計は[クロスプラットフォーム基盤文書](docs/CROSS-PLATFORM.md)をご覧ください。
 
 ## 必要なもの
 
@@ -55,11 +69,14 @@ Facebook の公式ダウンロードデータに含まれる投稿・画像・�
 ## ソースからビルド
 
 ```powershell
+dotnet build src/FB2Blogger.Core/FB2Blogger.Core.csproj -c Release
+dotnet run --project tests/CoreHarness/CoreHarness.csproj -c Release
+dotnet build src/FB2Blogger.Desktop/FB2Blogger.Desktop.csproj -c Release
 dotnet build src/FB2Blogger/FB2Blogger.csproj -c Release
 dotnet run --project tests/AuditHarness/AuditHarness.csproj -c Release
 ```
 
-.NET 10 SDK が必要です。Release の EXE は自己完結型の単一ファイルで、利用者が .NET Runtime を別途導入する必要はありません。
+.NET 10 SDK が必要です。現在の正式 Release は Windows 向け自己完結型の単一 EXE のままで、Avalonia プレビューはまだ正式ダウンロードとして提供しません。
 
 ## ライセンスと責任
 

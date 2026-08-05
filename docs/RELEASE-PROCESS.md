@@ -1,4 +1,4 @@
-# Contributing / 參與貢獻 / 参与贡献 / コントリビューション
+# Release process / 發行流程 / 发布流程 / リリース手順
 
 <!-- QUALITY-STANDARD:BEGIN -->
 ## 炎劍開源軟體家族品質標準 / Flameblade Open Source Software Family Quality Standard
@@ -28,17 +28,32 @@
 
 ## 繁體中文
 
-歡迎 Issue 與 Pull Request。請先確認問題能在最新版重現，勿附上私人 Facebook ZIP 或憑證。跨平台核心修改請執行 `dotnet run --project tests/CoreHarness/CoreHarness.csproj -c Release` 與 Avalonia 預覽殼建置；Windows 完整版另須執行 `dotnet run --project tests/AuditHarness/AuditHarness.csproj -c Release`。PR 請說明問題、做法、使用者影響、測試作業系統與結果；若改變使用者可見行為，請同步更新繁中、簡中、英文、日文文件。CI 通過不可寫成 macOS／Linux 實機驗證。
+1. 確認版本、四語文件、變更紀錄與官網同步內容。
+2. 在乾淨工作樹執行完整建置、CoreHarness、AuditHarness、Windows 封裝、NuGet 弱點稽核與 Gitleaks。
+3. 由 Pull Request 合併，不直接推送受保護的 `main`。
+4. 等待 Cross-platform CI、CodeQL、Dependency Review、Security Audit 與 Secret Defense 全部通過。
+5. Release 只附上可追溯至標籤提交的自動建置產物與雜湊；沒有實機證據的平台只標示預覽。
 
 ## 简体中文
 
-欢迎提交 Issue 和 Pull Request。请先在最新版复现问题，勿附上私人 Facebook ZIP 或凭证。跨平台核心修改必须运行 CoreHarness 并构建 Avalonia 预览界面；Windows 完整版还必须运行 AuditHarness。PR 请说明问题、解决方式、用户影响、测试系统与结果；影响用户行为时必须同步更新繁中、简中、英文、日文文档。CI 通过不得写成 macOS／Linux 实机验证。
+1. 确认版本、四语文档、变更记录与官网同步内容。
+2. 在干净工作树运行完整构建、CoreHarness、AuditHarness、Windows 打包、NuGet 漏洞审计与 Gitleaks。
+3. 通过 Pull Request 合并，不直接推送受保护的 `main`。
+4. 等待 Cross-platform CI、CodeQL、Dependency Review、Security Audit 与 Secret Defense 全部通过。
+5. Release 只附上可追溯到标签提交的自动构建产物与哈希；没有实机证据的平台只标示预览。
 
 ## English
 
-Issues and pull requests are welcome. Reproduce the problem on the latest version and never attach private Facebook archives or credentials. Cross-platform core changes must run CoreHarness and build the Avalonia preview; the full Windows edition must also run AuditHarness. A PR should explain the problem, approach, user impact, test operating systems, and results. User-visible changes must update Traditional Chinese, Simplified Chinese, English, and Japanese documentation together. Never describe CI as real macOS or Linux hardware validation.
+1. Confirm the version, four-language documentation, changelog, and official-site synchronization.
+2. From a clean worktree, run the full build, CoreHarness, AuditHarness, Windows publish, NuGet vulnerability audit, and Gitleaks.
+3. Merge through a pull request; never push directly to protected `main`.
+4. Wait for Cross-platform CI, CodeQL, Dependency Review, Security Audit, and Secret Defense to pass.
+5. Attach only automated artifacts and hashes traceable to the tagged commit. Label a platform as preview when real-hardware evidence is unavailable.
 
 ## 日本語
 
-Issue と Pull Request を歓迎します。最新版で再現を確認し、非公開の Facebook ZIP や認証情報を添付しないでください。共通コアの変更では CoreHarness と Avalonia プレビューのビルドを行い、Windows 完全版では AuditHarness も実行してください。PR には問題、対応方法、利用者への影響、検証した OS と結果を記載し、利用者向けの変更では繁体字中国語・簡体字中国語・英語・日本語の文書を同時に更新してください。CI 成功を macOS／Linux 実機検証と表現してはいけません。
-
+1. バージョン、4 言語の文書、変更履歴、公式サイトの同期内容を確認します。
+2. クリーンなワークツリーで、全体ビルド、CoreHarness、AuditHarness、Windows 配布ビルド、NuGet 脆弱性監査、Gitleaks を実行します。
+3. 保護された `main` へ直接 push せず、Pull Request を通じてマージします。
+4. Cross-platform CI、CodeQL、Dependency Review、Security Audit、Secret Defense がすべて成功するまで待ちます。
+5. タグ付きコミットへ追跡できる自動生成物とハッシュだけを Release に添付し、実機証拠がないプラットフォームはプレビューと明記します。

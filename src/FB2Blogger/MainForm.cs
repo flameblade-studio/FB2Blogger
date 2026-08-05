@@ -1,6 +1,4 @@
 using System.Diagnostics;
-using System.IO.Compression;
-using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -106,8 +104,7 @@ internal sealed class MainForm : Form
                     return;
                 }
             }
-            var html = new StringBuilder($"<!-- FB2BLOGGER:{post.Key} -->");
-            if (body.Length > 0) html.Append("<div style=\"white-space:pre-wrap\">").Append(WebUtility.HtmlEncode(body)).Append("</div>");
+            var html = new StringBuilder(MigrationContent.BeginPostHtml(post));
             List<YouTubeVideoInfo> videos = []; var claimed = new HashSet<string>(StringComparer.Ordinal);
             if (paths.Any(IsVideoPath)) { Say(L.T("checking_youtube")); videos = await api.GetUploadedVideosAsync(cts.Token); }
             foreach (var path in paths)
@@ -129,8 +126,9 @@ internal sealed class MainForm : Form
                 }
                 else Say(L.T("reuse_media", Path.GetFileName(path)));
 
-                if (video) html.Append($"<div style=\"margin:16px 0\"><iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/{WebUtility.HtmlEncode(hosted.Value)}\" title=\"YouTube video\" frameborder=\"0\" allowfullscreen></iframe></div>");
-                else html.Append($"<p><img src=\"{WebUtility.HtmlEncode(hosted.Value)}\" alt=\"{WebUtility.HtmlEncode(L.T("article_image_alt"))}\" style=\"max-width:100%;height:auto\"></p>");
+                html.Append(video
+                    ? MigrationContent.VideoHtml(hosted.Value)
+                    : MigrationContent.ImageHtml(hosted.Value, L.T("article_image_alt")));
             }
             Say(composeDraft.Checked ? L.T("saving_draft") : L.T("publishing_post"));
             await api.CreatePostAsync(settings.BlogId, post, html.ToString(), composeDraft.Checked, cts.Token);
@@ -144,8 +142,8 @@ internal sealed class MainForm : Form
         finally { cts.Dispose(); cts = null; ToggleBusy(false); }
     }
 
-    static bool IsVideoPath(string path) => Path.GetExtension(path).ToLowerInvariant() is ".mp4" or ".mov" or ".m4v" or ".avi" or ".mkv" or ".webm";
-    static string ComposerCacheKey(string path) { var file = new FileInfo(path); return $"{Path.GetFullPath(path)}|{file.Length}|{file.LastWriteTimeUtc.Ticks}"; }
+    static bool IsVideoPath(string path) => MigrationContent.IsVideoPath(path);
+    static string ComposerCacheKey(string path) => MigrationContent.ComposerCacheKey(path);
 
     async Task<HostedMedia> UploadOptimizedImageAsync(GoogleApi api, string originalPath, CancellationToken ct)
     {
@@ -226,10 +224,10 @@ internal sealed class MainForm : Form
     {
         if (!File.Exists(zipPath.Text)) { MessageBox.Show(L.T("choose_zip_first")); return; }
         if (string.IsNullOrWhiteSpace(settings.BlogId) && !await ConfigureFirstRunAsync()) return;
-        cts = new(); ToggleBusy(true); var report = new MigrationReport(); var temp = Path.Combine(Path.GetTempPath(), "FB2Blogger", Guid.NewGuid().ToString("N"));
+        cts = new(); ToggleBusy(true); var report = new MigrationReport(); var temp = Path.Combine(AppPaths.Current.TemporaryRoot, Guid.NewGuid().ToString("N"));
         try
         {
-            Say(L.T("cleaning_stale_temp")); await Task.Run(CleanupStaleTemps, cts.Token);
+            Say(L.T("cleaning_stale_temp")); await Task.Run(() => CleanupStaleTemps(AppPaths.Current), cts.Token);
             Directory.CreateDirectory(temp); Say(L.T("extracting_facebook_zip")); await Task.Run(() => SafeExtract(zipPath.Text, temp, cts.Token), cts.Token);
             Say(L.T("finding_export_content")); var posts = await Task.Run(() => FacebookParser.Read(temp, Say, cts.Token), cts.Token); report.Total = posts.Count;
             if (posts.Count == 0) throw new InvalidOperationException(L.T("facebook_posts_missing"));
@@ -276,8 +274,7 @@ internal sealed class MainForm : Form
                 try
                 {
                     Say(L.T("migrating_post", index + 1, posts.Count, post.Title));
-                    var html = new StringBuilder($"<!-- FB2BLOGGER:{WebUtility.HtmlEncode(post.Key)} -->");
-                    if (!string.IsNullOrWhiteSpace(post.Text)) html.Append("<div style=\"white-space:pre-wrap\">").Append(WebUtility.HtmlEncode(post.Text)).Append("</div>");
+                    var html = new StringBuilder(MigrationContent.BeginPostHtml(post));
                     foreach (var media in post.Media)
                     {
                         var path = ResolveMedia(temp, media.RelativePath); if (path is null) { Say(L.T("media_path_missing", media.RelativePath)); continue; }
@@ -299,8 +296,9 @@ internal sealed class MainForm : Form
                             postState.Media[media.RelativePath] = hosted; SettingsStore.SaveMigration(zipPath.Text, migration);
                         }
 
-                        if (media.IsVideo) html.Append($"<div style=\"margin:16px 0\"><iframe width=\"560\" height=\"315\" src=\"https://www.youtube.com/embed/{WebUtility.HtmlEncode(hosted.Value)}\" title=\"YouTube video\" frameborder=\"0\" allowfullscreen></iframe></div>");
-                        else html.Append($"<p><img src=\"{WebUtility.HtmlEncode(hosted.Value)}\" alt=\"{WebUtility.HtmlEncode(L.T("facebook_image_alt"))}\" style=\"max-width:100%;height:auto\"></p>");
+                        html.Append(media.IsVideo
+                            ? MigrationContent.VideoHtml(hosted.Value)
+                            : MigrationContent.ImageHtml(hosted.Value, L.T("facebook_image_alt")));
                     }
                     postState.BloggerPostId = await api.CreatePostAsync(settings.BlogId, post, html.ToString(), settings.CreateAsDraft, cts.Token);
                     postState.Complete = true; SettingsStore.SaveMigration(zipPath.Text, migration);
@@ -328,7 +326,7 @@ internal sealed class MainForm : Form
         var reportNote = L.T("report_write_failed");
         try
         {
-            var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "FB2Blogger Reports");
+            var folder = AppPaths.Current.ReportsDirectory;
             Directory.CreateDirectory(folder); var path = Path.Combine(folder, L.T("report_file_name", DateTime.Now));
             File.WriteAllText(path, text, Encoding.UTF8); reportNote = L.T("report_saved");
         }
@@ -340,18 +338,12 @@ internal sealed class MainForm : Form
 
     static string? ResolveMedia(string root, string relative)
     {
-        var normalized = relative.TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar); var candidate = Path.GetFullPath(Path.Combine(root, normalized)); var fullRoot = Path.GetFullPath(root) + Path.DirectorySeparatorChar;
-        if (candidate.StartsWith(fullRoot, StringComparison.OrdinalIgnoreCase) && File.Exists(candidate)) return candidate;
-        var name = Path.GetFileName(relative); return string.IsNullOrEmpty(name) ? null : Directory.EnumerateFiles(root, name, SearchOption.AllDirectories).FirstOrDefault();
+        return MigrationContent.ResolveMediaPath(root, relative);
     }
 
     static string YouTubeDescription(FacebookPost post, MediaItem media)
     {
-        var marker = $"\n\n[FB2Blogger:{post.Key}:{media.RelativePath.Replace('\\', '/')} ]";
-        var maxText = Math.Max(0, 5000 - marker.Length);
-        var text = post.Text.Length <= maxText ? post.Text : post.Text[..maxText];
-        if (text.Length > 0 && char.IsHighSurrogate(text[^1])) text = text[..^1];
-        return text + marker;
+        return MigrationContent.YouTubeDescription(post, media);
     }
 
     async Task OptimizeExistingDriveImagesAsync(GoogleApi api, List<FacebookPost> posts, MigrationState migration, string extractedRoot, CancellationToken ct)
@@ -403,13 +395,7 @@ internal sealed class MainForm : Form
 
     static string DriveIdFromUrl(string url)
     {
-        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri)) return "";
-        foreach (var pair in uri.Query.TrimStart('?').Split('&', StringSplitOptions.RemoveEmptyEntries))
-        {
-            var parts = pair.Split('=', 2);
-            if (parts.Length == 2 && parts[0] == "id") return Uri.UnescapeDataString(parts[1]);
-        }
-        return "";
+        return MigrationContent.DriveIdFromUrl(url);
     }
 
     static YouTubeVideoInfo? FindExistingVideo(List<YouTubeVideoInfo> videos, HashSet<string> claimedIds, FacebookPost post, MediaItem media, string localPath)
@@ -443,49 +429,11 @@ internal sealed class MainForm : Form
 
     static void SafeExtract(string archive, string target, CancellationToken cancellationToken)
     {
-        var root = Path.GetFullPath(target) + Path.DirectorySeparatorChar;
-        using var zip = ZipFile.OpenRead(archive);
-        if (zip.Entries.Count > 250_000) throw new InvalidDataException(L.T("zip_too_many_entries"));
-
-        long totalBytes = 0;
-        foreach (var entry in zip.Entries)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            if (entry.FullName.Length > 1024) throw new InvalidDataException(L.T("zip_file_name_too_long"));
-            try { totalBytes = checked(totalBytes + entry.Length); }
-            catch (OverflowException) { throw new InvalidDataException(L.T("zip_size_invalid")); }
-        }
-
-        var archiveBytes = Math.Max(1, new FileInfo(archive).Length);
-        if (totalBytes > 10L * 1024 * 1024 * 1024 && totalBytes / archiveBytes > 500)
-            throw new InvalidDataException(L.T("zip_ratio_invalid"));
-        var driveRoot = Path.GetPathRoot(root) ?? root;
-        var available = new DriveInfo(driveRoot).AvailableFreeSpace;
-        var reserve = 2L * 1024 * 1024 * 1024;
-        if (totalBytes > Math.Max(0, available - reserve))
-            throw new IOException(L.T("disk_space_insufficient", FormatBytes(totalBytes), FormatBytes(Math.Max(0, available - reserve))));
-
-        foreach (var entry in zip.Entries)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            var path = Path.GetFullPath(Path.Combine(target, entry.FullName));
-            if (!path.StartsWith(root, StringComparison.OrdinalIgnoreCase)) throw new InvalidDataException(L.T("zip_unsafe_path"));
-            if (string.IsNullOrEmpty(entry.Name)) Directory.CreateDirectory(path);
-            else { Directory.CreateDirectory(Path.GetDirectoryName(path)!); entry.ExtractToFile(path, true); }
-        }
+        FacebookArchiveExtractor.Extract(archive, target, cancellationToken);
     }
 
-    static void CleanupStaleTemps()
-    {
-        var root = Path.Combine(Path.GetTempPath(), "FB2Blogger");
-        if (!Directory.Exists(root)) return;
-        foreach (var directory in Directory.EnumerateDirectories(root))
-        {
-            try { Directory.Delete(directory, true); }
-            catch (IOException) { }
-            catch (UnauthorizedAccessException) { }
-        }
-    }
+    static void CleanupStaleTemps(AppPathSet paths) =>
+        LegacyMigrationWorkspaceCleaner.CleanupStaleWorkspaces(paths);
 
     static string FormatBytes(long bytes) => bytes >= 1024L * 1024 * 1024
         ? $"{bytes / (1024d * 1024 * 1024):0.0} GB"
