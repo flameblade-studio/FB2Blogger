@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=FB2Blogger Preview
+Comment=Inspect an official Facebook export ZIP offline
+Exec=FB2Blogger.Desktop
+Icon=fb2blogger-preview
+Terminal=false
+Categories=Utility;Office;
+Keywords=Facebook;Blogger;export;archive;preview;

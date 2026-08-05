@@ -4,19 +4,19 @@
 
 ### 繁體中文
 
-建立不依賴 WinForms 的共享核心，涵蓋模型、Facebook JSON 解析、安全解壓、文章內容組合、搬移進度與平台資料路徑；新增四語 Avalonia 預覽殼及 Windows／macOS／Linux 核心 CI。完整搬家功能目前仍只在 Windows 版提供，未宣稱 macOS／Linux 已完成實機驗證。
+建立不依賴 WinForms 的共享核心，涵蓋模型、Facebook JSON 解析、安全解壓、文章內容組合、搬移進度與平台資料路徑；新增四語 Avalonia 預覽殼、Windows／macOS／Linux 核心 CI，以及原生 Intel／Apple Silicon macOS DMG、Linux x64 AppImage、封裝啟動檢查、SHA256、SPDX SBOM 與可信任工作流程來源證明。完整搬家功能目前仍只在 Windows 版提供，未宣稱 macOS／Linux 已完成實機驗證。
 
 ### 简体中文
 
-建立不依赖 WinForms 的共享核心，包含模型、Facebook JSON 解析、安全解压、文章内容组合、迁移进度及平台数据路径；新增四语 Avalonia 预览界面和 Windows／macOS／Linux 核心 CI。完整迁移功能目前仍仅由 Windows 版提供，不声称 macOS／Linux 已完成实机验证。
+建立不依赖 WinForms 的共享核心，包含模型、Facebook JSON 解析、安全解压、文章内容组合、迁移进度及平台数据路径；新增四语 Avalonia 预览界面、Windows／macOS／Linux 核心 CI，以及原生 Intel／Apple Silicon macOS DMG、Linux x64 AppImage、软件包启动检查、SHA256、SPDX SBOM 与可信工作流来源证明。完整迁移功能目前仍仅由 Windows 版提供，不声称 macOS／Linux 已完成实机验证。
 
 ### English
 
-Adds a WinForms-independent shared core for models, Facebook JSON parsing, safe extraction, post composition, migration state, and platform data paths, plus a four-language Avalonia preview shell and Windows/macOS/Linux core CI. Full migration remains Windows-only and no real Mac or Linux validation is claimed.
+Adds a WinForms-independent shared core, a four-language Avalonia preview, Windows/macOS/Linux core CI, native Intel/Apple Silicon macOS DMGs, a Linux x64 AppImage, packaged-executable launch checks, SHA256 files, SPDX SBOMs, and trusted-workflow provenance attestations. Full migration remains Windows-only and no real Mac or Linux validation is claimed.
 
 ### 日本語
 
-モデル、Facebook JSON 解析、安全な展開、記事生成、移行状態、OS 別データ保存先を WinForms 非依存の共通コアへ分離し、4 言語 Avalonia プレビューと Windows／macOS／Linux のコア CI を追加しました。完全な移行機能は引き続き Windows 版のみで、macOS／Linux 実機検証済みとは表現しません。
+モデル、Facebook JSON 解析、安全な展開、記事生成、移行状態、OS 別データ保存先を WinForms 非依存の共通コアへ分離し、4 言語 Avalonia プレビュー、Windows／macOS／Linux コア CI、ネイティブ Intel／Apple Silicon macOS DMG、Linux x64 AppImage、パッケージ起動確認、SHA256、SPDX SBOM、信頼できるワークフローの来歴証明を追加しました。完全な移行機能は引き続き Windows 版のみで、macOS／Linux 実機検証済みとは表現しません。
 
 ## v1.0.0 — 2026-08-05
 

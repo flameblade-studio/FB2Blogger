@@ -1,6 +1,8 @@
 bin/
 obj/
 artifacts/
+dist/
+_manifest/
 .vs/
 .vscode/
 *.user
@@ -8,6 +10,8 @@ artifacts/
 *.pdb
 *.zip
 *.exe
+*.dmg
+*.AppImage
 settings.dat
 completed-*.json
 completed-*.json.bak

@@ -1,0 +1,13 @@
+FB2Blogger CROSS-PLATFORM PREVIEW / 跨平台預覽 / 跨平台预览 / クロスプラットフォーム・プレビュー
+
+繁體中文
+這是離線檢查 Facebook 官方匯出 ZIP 的預覽版，不是完整搬家工具。它可以選擇 ZIP、安全解壓並解析貼文；Google OAuth、Drive／YouTube 上傳與 Blogger 發布尚未接通。請勿輸入 OAuth 憑證。此套件由原生 GitHub runner 自動建置與啟動檢查，但尚未由專案擁有者在真實 Mac／Linux 裝置驗證。
+
+简体中文
+这是用于离线检查 Facebook 官方导出 ZIP 的预览版，不是完整迁移工具。它可以选择 ZIP、安全解压并解析帖子；Google OAuth、Drive／YouTube 上传与 Blogger 发布尚未接通。请勿输入 OAuth 凭据。此软件包由原生 GitHub runner 自动构建并执行启动检查，但项目所有者尚未在真实 Mac／Linux 设备上验证。
+
+English
+This is a preview for inspecting an official Facebook export ZIP offline, not the full migration application. It can select a ZIP, extract it safely, and parse posts. Google OAuth, Drive/YouTube upload, and Blogger publishing are not connected. Do not enter OAuth credentials. A native GitHub runner builds and launch-smoke-tests this package, but the project owner has not validated it on real Mac or Linux hardware.
+
+日本語
+これは Facebook 公式エクスポート ZIP をオフラインで確認するためのプレビュー版であり、完全な移行アプリではありません。ZIP の選択、安全な展開、投稿解析には対応しますが、Google OAuth、Drive／YouTube へのアップロード、Blogger 公開は未接続です。OAuth 認証情報を入力しないでください。このパッケージは各 OS の GitHub runner で自動ビルドと起動確認を行いますが、プロジェクト所有者による実機 Mac／Linux 検証はまだ完了していません。

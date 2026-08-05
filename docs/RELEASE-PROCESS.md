@@ -29,31 +29,31 @@
 ## 繁體中文
 
 1. 確認版本、四語文件、變更紀錄與官網同步內容。
-2. 在乾淨工作樹執行完整建置、CoreHarness、AuditHarness、Windows 封裝、NuGet 弱點稽核與 Gitleaks。
+2. 在乾淨工作樹執行完整建置、CoreHarness、AuditHarness、PackagingAudit、Windows 封裝、原生預覽封裝啟動檢查、NuGet 弱點稽核與 Gitleaks。
 3. 由 Pull Request 合併，不直接推送受保護的 `main`。
-4. 等待 Cross-platform CI、CodeQL、Dependency Review、Security Audit 與 Secret Defense 全部通過。
-5. Release 只附上可追溯至標籤提交的自動建置產物與雜湊；沒有實機證據的平台只標示預覽。
+4. 等待 Cross-platform CI、Native Preview Packages、CodeQL、Dependency Review、Security Audit 與 Secret Defense 全部通過。
+5. Release 只附上可追溯至標籤提交的自動建置產物、SHA256、SBOM 與可信任工作流程的 GitHub 證明；沒有實機證據的平台只標示預覽。
 
 ## 简体中文
 
 1. 确认版本、四语文档、变更记录与官网同步内容。
-2. 在干净工作树运行完整构建、CoreHarness、AuditHarness、Windows 打包、NuGet 漏洞审计与 Gitleaks。
+2. 在干净工作树运行完整构建、CoreHarness、AuditHarness、PackagingAudit、Windows 打包、原生预览软件包启动检查、NuGet 漏洞审计与 Gitleaks。
 3. 通过 Pull Request 合并，不直接推送受保护的 `main`。
-4. 等待 Cross-platform CI、CodeQL、Dependency Review、Security Audit 与 Secret Defense 全部通过。
-5. Release 只附上可追溯到标签提交的自动构建产物与哈希；没有实机证据的平台只标示预览。
+4. 等待 Cross-platform CI、Native Preview Packages、CodeQL、Dependency Review、Security Audit 与 Secret Defense 全部通过。
+5. Release 只附上可追溯到标签提交的自动构建产物、SHA256、SBOM 与可信工作流的 GitHub 证明；没有实机证据的平台只标示预览。
 
 ## English
 
 1. Confirm the version, four-language documentation, changelog, and official-site synchronization.
-2. From a clean worktree, run the full build, CoreHarness, AuditHarness, Windows publish, NuGet vulnerability audit, and Gitleaks.
+2. From a clean worktree, run the full build, CoreHarness, AuditHarness, PackagingAudit, Windows publish, native preview package launch checks, NuGet vulnerability audit, and Gitleaks.
 3. Merge through a pull request; never push directly to protected `main`.
-4. Wait for Cross-platform CI, CodeQL, Dependency Review, Security Audit, and Secret Defense to pass.
-5. Attach only automated artifacts and hashes traceable to the tagged commit. Label a platform as preview when real-hardware evidence is unavailable.
+4. Wait for Cross-platform CI, Native Preview Packages, CodeQL, Dependency Review, Security Audit, and Secret Defense to pass.
+5. Attach only automated artifacts, SHA256 files, SBOMs, and trusted-workflow GitHub attestations traceable to the tagged commit. Label a platform as preview when real-hardware evidence is unavailable.
 
 ## 日本語
 
 1. バージョン、4 言語の文書、変更履歴、公式サイトの同期内容を確認します。
-2. クリーンなワークツリーで、全体ビルド、CoreHarness、AuditHarness、Windows 配布ビルド、NuGet 脆弱性監査、Gitleaks を実行します。
+2. クリーンなワークツリーで、全体ビルド、CoreHarness、AuditHarness、PackagingAudit、Windows 配布ビルド、ネイティブ Preview パッケージの起動確認、NuGet 脆弱性監査、Gitleaks を実行します。
 3. 保護された `main` へ直接 push せず、Pull Request を通じてマージします。
-4. Cross-platform CI、CodeQL、Dependency Review、Security Audit、Secret Defense がすべて成功するまで待ちます。
-5. タグ付きコミットへ追跡できる自動生成物とハッシュだけを Release に添付し、実機証拠がないプラットフォームはプレビューと明記します。
+4. Cross-platform CI、Native Preview Packages、CodeQL、Dependency Review、Security Audit、Secret Defense がすべて成功するまで待ちます。
+5. タグ付きコミットへ追跡できる自動生成物、SHA256、SBOM、信頼できるワークフローの GitHub 証明だけを Release に添付し、実機証拠がないプラットフォームは Preview と明記します。

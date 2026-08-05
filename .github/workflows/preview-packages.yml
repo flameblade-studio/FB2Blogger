@@ -1,0 +1,205 @@
+name: Native Preview Packages
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-*'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-preview-packages-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_SDK_VERSION: 10.0.204
+
+jobs:
+  macos-preview:
+    name: macOS ${{ matrix.architecture_label }} Preview DMG
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15-intel
+            runtime_id: osx-x64
+            architecture_label: x64
+            platform_key: macOS-x64
+          - runner: macos-15
+            runtime_id: osx-arm64
+            architecture_label: arm64
+            platform_key: macOS-arm64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.0
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: ${{ env.DOTNET_SDK_VERSION }}
+      - name: Resolve traceable package metadata
+        id: metadata
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          RUN_NUMBER: ${{ github.run_number }}
+        run: bash packaging/resolve-metadata.sh
+      - name: Run shared and packaging audits
+        run: |
+          dotnet run --project tests/CoreHarness/CoreHarness.csproj -c Release
+          dotnet run --project tests/PackagingAudit/PackagingAudit.csproj -c Release
+      - name: Check packaging script syntax
+        shell: bash
+        run: bash -n packaging/macos/build-dmg.sh packaging/resolve-metadata.sh packaging/generate-sbom.sh
+      - name: Publish the native self-contained preview
+        shell: bash
+        run: |
+          dotnet publish src/FB2Blogger.Desktop/FB2Blogger.Desktop.csproj \
+            -c Release \
+            -r '${{ matrix.runtime_id }}' \
+            --self-contained true \
+            -p:PublishSingleFile=false \
+            -p:ContinuousIntegrationBuild=true \
+            -p:Version='${{ steps.metadata.outputs.app_version }}' \
+            -o '${{ runner.temp }}/fb2blogger-publish-${{ matrix.platform_key }}'
+      - name: Build, mount, and launch-smoke-test the DMG
+        shell: bash
+        env:
+          PUBLISH_DIR: ${{ runner.temp }}/fb2blogger-publish-${{ matrix.platform_key }}
+          OUTPUT_DIR: ${{ github.workspace }}/dist/${{ matrix.platform_key }}
+          PACKAGE_LABEL: ${{ steps.metadata.outputs.package_label }}
+          APP_VERSION: ${{ steps.metadata.outputs.app_version }}
+          RUNTIME_ID: ${{ matrix.runtime_id }}
+          ARCHITECTURE_LABEL: ${{ matrix.architecture_label }}
+        run: bash packaging/macos/build-dmg.sh
+      - name: Generate the pinned Microsoft SPDX SBOM
+        shell: bash
+        env:
+          PUBLISH_DIR: ${{ runner.temp }}/fb2blogger-publish-${{ matrix.platform_key }}
+          OUTPUT_DIR: ${{ github.workspace }}/dist/${{ matrix.platform_key }}
+          APP_VERSION: ${{ steps.metadata.outputs.app_version }}
+          PLATFORM_NAME: ${{ matrix.platform_key }}
+        run: |
+          package_path="$(find "${OUTPUT_DIR}" -maxdepth 1 -type f -name '*.dmg' -print -quit)"
+          test -n "${package_path}"
+          PACKAGE_FILE_NAME="$(basename "${package_path}")" bash packaging/generate-sbom.sh
+      - name: Upload the DMG, SHA256, and SBOM
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.0
+        with:
+          name: FB2Blogger-${{ matrix.platform_key }}-Preview-${{ github.run_id }}
+          path: dist/${{ matrix.platform_key }}/*
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
+
+  linux-preview:
+    name: Linux x64 Preview AppImage
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.0
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: ${{ env.DOTNET_SDK_VERSION }}
+      - name: Resolve traceable package metadata
+        id: metadata
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          RUN_NUMBER: ${{ github.run_number }}
+        run: bash packaging/resolve-metadata.sh
+      - name: Run shared and packaging audits
+        run: |
+          dotnet run --project tests/CoreHarness/CoreHarness.csproj -c Release
+          dotnet run --project tests/PackagingAudit/PackagingAudit.csproj -c Release
+      - name: Check packaging script syntax
+        run: bash -n packaging/linux/build-appimage.sh packaging/resolve-metadata.sh packaging/generate-sbom.sh
+      - name: Publish the native self-contained preview
+        run: |
+          dotnet publish src/FB2Blogger.Desktop/FB2Blogger.Desktop.csproj \
+            -c Release \
+            -r linux-x64 \
+            --self-contained true \
+            -p:PublishSingleFile=false \
+            -p:ContinuousIntegrationBuild=true \
+            -p:Version='${{ steps.metadata.outputs.app_version }}' \
+            -o '${{ runner.temp }}/fb2blogger-publish-Linux-x64'
+      - name: Build, extract, and launch-smoke-test the AppImage
+        env:
+          PUBLISH_DIR: ${{ runner.temp }}/fb2blogger-publish-Linux-x64
+          OUTPUT_DIR: ${{ github.workspace }}/dist/Linux-x64
+          PACKAGE_LABEL: ${{ steps.metadata.outputs.package_label }}
+        run: bash packaging/linux/build-appimage.sh
+      - name: Generate the pinned Microsoft SPDX SBOM
+        env:
+          PUBLISH_DIR: ${{ runner.temp }}/fb2blogger-publish-Linux-x64
+          OUTPUT_DIR: ${{ github.workspace }}/dist/Linux-x64
+          APP_VERSION: ${{ steps.metadata.outputs.app_version }}
+          PLATFORM_NAME: Linux-x64
+        run: |
+          package_path="$(find "${OUTPUT_DIR}" -maxdepth 1 -type f -name '*.AppImage' -print -quit)"
+          test -n "${package_path}"
+          PACKAGE_FILE_NAME="$(basename "${package_path}")" bash packaging/generate-sbom.sh
+      - name: Upload the AppImage, SHA256, and SBOM
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.0
+        with:
+          name: FB2Blogger-Linux-x64-Preview-${{ github.run_id }}
+          path: dist/Linux-x64/*
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
+
+  attest-preview-packages:
+    name: Attest ${{ matrix.platform_key }} package and SBOM
+    if: github.event_name != 'pull_request'
+    needs: [macos-preview, linux-preview]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform_key: macOS-x64
+            extension: dmg
+          - platform_key: macOS-arm64
+            extension: dmg
+          - platform_key: Linux-x64
+            extension: AppImage
+    steps:
+      - name: Download the native package set
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.0
+        with:
+          name: FB2Blogger-${{ matrix.platform_key }}-Preview-${{ github.run_id }}
+          path: downloaded
+      - name: Resolve attestation inputs
+        id: inputs
+        shell: bash
+        run: |
+          mapfile -t packages < <(find downloaded -maxdepth 1 -type f -name '*.${{ matrix.extension }}' -print)
+          test "${#packages[@]}" -eq 1
+          package_path="${packages[0]}"
+          sbom_path="${package_path}.spdx.json"
+          test -f "${sbom_path}"
+          printf 'package_path=%s\n' "${package_path}" >> "${GITHUB_OUTPUT}"
+          printf 'sbom_path=%s\n' "${sbom_path}" >> "${GITHUB_OUTPUT}"
+      - name: Generate SLSA build provenance
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.0.0
+        with:
+          subject-path: ${{ steps.inputs.outputs.package_path }}
+      - name: Bind the SPDX SBOM to the package
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.0.0
+        with:
+          subject-path: ${{ steps.inputs.outputs.package_path }}
+          sbom-path: ${{ steps.inputs.outputs.sbom_path }}

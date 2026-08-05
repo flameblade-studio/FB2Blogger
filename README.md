@@ -37,10 +37,10 @@
 ## 三平台進度
 
 - **Windows：**既有 WinForms 完整版維持原功能、原 LocalAppData 路徑與 DPAPI 憑證保護。
-- **macOS／Linux：**目前是 Avalonia 基礎預覽殼，可離線選擇、安全解壓並解析 Facebook ZIP；Google 授權、媒體上傳與 Blogger 發布尚未接通，還不是正式成品。
+- **macOS／Linux：**目前是 Avalonia 基礎預覽殼，可離線選擇、安全解壓並解析 Facebook ZIP；原生 CI 會產生 macOS `.dmg` 與 Linux `.AppImage` 預覽封裝。Google 授權、媒體上傳與 Blogger 發布尚未接通，仍不是正式成品。
 - **共同基礎：**解析、模型、安全解壓、文章內容組合、搬移進度與平台資料路徑已抽成 `FB2Blogger.Core`，由 GitHub Actions 在 Windows、macOS、Linux 分別建置與測試。
 
-CI 通過不等於 macOS／Linux 實機驗證。專案擁有者目前只有 Windows 電腦，其他平台正式發布前仍需工程師提供真實環境測試。完整功能矩陣與安全計畫請見 [跨平台基礎文件](docs/CROSS-PLATFORM.md)。
+CI 通過不等於 macOS／Linux 實機驗證。專案擁有者目前只有 Windows 電腦，其他平台正式發布前仍需工程師提供真實環境測試。完整功能矩陣與安全計畫請見[跨平台基礎文件](docs/CROSS-PLATFORM.md)，下載、雜湊、來源證明與開啟方式請見[原生預覽封裝指南](docs/PREVIEW-PACKAGES.md)。
 
 ## 使用前準備
 
@@ -75,10 +75,11 @@ dotnet run --project tests/CoreHarness/CoreHarness.csproj -c Release
 dotnet build src/FB2Blogger.Desktop/FB2Blogger.Desktop.csproj -c Release
 dotnet build src/FB2Blogger/FB2Blogger.csproj -c Release
 dotnet run --project tests/AuditHarness/AuditHarness.csproj -c Release
+dotnet run --project tests/PackagingAudit/PackagingAudit.csproj -c Release
 dotnet publish src/FB2Blogger/FB2Blogger.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o artifacts
 ```
 
-需要 .NET 10 SDK。現有正式 Release 仍提供 Windows 自含式單一 EXE，使用者不必另裝 .NET Runtime；Avalonia 預覽殼尚未列為正式下載成品。
+需要固定於 `global.json` 的 .NET 10 SDK。現有正式 Release 仍提供 Windows 自含式單一 EXE；macOS／Linux 成品即使可由 Actions 下載或隨候選版附上，也必須清楚標示 Preview，且不具備 Windows 完整搬家功能。
 
 ## 開源與責任界線
 
