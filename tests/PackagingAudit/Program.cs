@@ -153,6 +153,9 @@ Check(workflow.Contains("gh release create", StringComparison.Ordinal) &&
       workflow.Contains("github.event_name == 'workflow_dispatch' && 'main' || needs.release-gate.outputs.build_commit", StringComparison.Ordinal) &&
       workflow.Contains("--notes-file", StringComparison.Ordinal),
     "The guarded workflow locks one reviewed commit and atomically publishes one exact curated GitHub pre-release with repaired recovery orchestration");
+Check(workflow.Split("needs.release-gate.outputs.publish == 'true' && 'tag' || github.ref_type", StringSplitOptions.None).Length - 1 == 4 &&
+      workflow.Split("needs.release-gate.outputs.publish == 'true' && needs.release-gate.outputs.tag || github.ref_name", StringSplitOptions.None).Length - 1 == 4,
+    "Every package job presents a validated recovery run to immutable-tag-era metadata scripts as the exact RC tag");
 Check(workflow.Contains("*.dmg", StringComparison.Ordinal) &&
       workflow.Contains("*.AppImage", StringComparison.Ordinal) &&
       !Regex.IsMatch(workflow + macScript + linuxScript, @"(?i)zip[^\n]*(?:\.dmg|\.AppImage)"),
