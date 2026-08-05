@@ -7,5 +7,6 @@
   <Folder Name="/tests/">
     <Project Path="tests/AuditHarness/AuditHarness.csproj" />
     <Project Path="tests/CoreHarness/CoreHarness.csproj" />
+    <Project Path="tests/PackagingAudit/PackagingAudit.csproj" />
   </Folder>
 </Solution>

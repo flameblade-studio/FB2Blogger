@@ -37,10 +37,10 @@ The app reads a ZIP that you obtained through Facebook's official “Download yo
 ## Platform status
 
 - **Windows:** the existing full WinForms edition keeps its current features, LocalAppData location, and DPAPI credential protection.
-- **macOS/Linux:** an Avalonia foundation preview can select, safely extract, and inspect a Facebook ZIP offline. Google authorization, media upload, and Blogger publishing are not connected yet, so this is not a production edition.
+- **macOS/Linux:** an Avalonia foundation preview can select, safely extract, and inspect a Facebook ZIP offline. Native CI produces macOS `.dmg` and Linux `.AppImage` preview packages. Google authorization, media upload, and Blogger publishing are not connected, so these are not production editions.
 - **Shared foundation:** models, parsing, safe extraction, post-content composition, migration state, and platform data paths now live in `FB2Blogger.Core`, which GitHub Actions builds and tests separately on Windows, macOS, and Linux.
 
-Passing CI is not evidence of real macOS or Linux hardware validation. The project owner currently has only Windows hardware, so production support still requires documented testing from contributors on those systems. See the [cross-platform foundation document](docs/CROSS-PLATFORM.md) for the exact matrix and security plan.
+Passing CI is not evidence of real macOS or Linux hardware validation. The project owner currently has only Windows hardware, so production support still requires documented testing from contributors on those systems. See the [cross-platform foundation document](docs/CROSS-PLATFORM.md) for the exact matrix and security plan, and the [native preview package guide](docs/PREVIEW-PACKAGES.md) for downloads, hashes, attestations, and launch instructions.
 
 ## Requirements
 
@@ -74,9 +74,10 @@ dotnet run --project tests/CoreHarness/CoreHarness.csproj -c Release
 dotnet build src/FB2Blogger.Desktop/FB2Blogger.Desktop.csproj -c Release
 dotnet build src/FB2Blogger/FB2Blogger.csproj -c Release
 dotnet run --project tests/AuditHarness/AuditHarness.csproj -c Release
+dotnet run --project tests/PackagingAudit/PackagingAudit.csproj -c Release
 ```
 
-.NET 10 SDK is required. Current production releases remain self-contained Windows executables; the Avalonia preview shell is not yet offered as a production download.
+The .NET 10 SDK pinned by `global.json` is required. Production releases remain self-contained Windows executables. A macOS or Linux artifact may be downloadable from Actions or attached to a release candidate only when it is clearly marked Preview; it does not contain the full Windows migration workflow.
 
 ## Open source and responsibility
 

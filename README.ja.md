@@ -37,10 +37,10 @@ Facebook の公式ダウンロードデータに含まれる投稿・画像・�
 ## 3 OS 対応の進捗
 
 - **Windows：**従来の完全版 WinForms アプリは、既存機能、LocalAppData の保存場所、DPAPI による認証情報保護をそのまま維持します。
-- **macOS／Linux：**Avalonia の基礎プレビューでは、Facebook ZIP の選択、安全な展開、オフライン解析まで行えます。Google 認証、メディアのアップロード、Blogger 公開は未接続で、正式版ではありません。
+- **macOS／Linux：**Avalonia の基礎プレビューでは、Facebook ZIP の選択、安全な展開、オフライン解析まで行えます。ネイティブ CI は macOS `.dmg` と Linux `.AppImage` のプレビュー・パッケージを作成します。Google 認証、メディアのアップロード、Blogger 公開は未接続で、正式版ではありません。
 - **共通基盤：**モデル、解析、安全な展開、記事内容の生成、移行状態、OS に応じたデータ保存先を `FB2Blogger.Core` に分離し、GitHub Actions で Windows・macOS・Linux ごとにビルドとテストを行います。
 
-CI 成功は macOS／Linux 実機検証の代わりにはなりません。プロジェクト所有者の手元には現在 Windows PC しかないため、正式対応には各 OS の協力者による実環境テスト記録が必要です。正確な機能表と安全設計は[クロスプラットフォーム基盤文書](docs/CROSS-PLATFORM.md)をご覧ください。
+CI 成功は macOS／Linux 実機検証の代わりにはなりません。プロジェクト所有者の手元には現在 Windows PC しかないため、正式対応には各 OS の協力者による実環境テスト記録が必要です。正確な機能表と安全設計は[クロスプラットフォーム基盤文書](docs/CROSS-PLATFORM.md)、ダウンロード、ハッシュ、来歴証明、起動方法は[ネイティブ・プレビュー・パッケージの手引き](docs/PREVIEW-PACKAGES.md)をご覧ください。
 
 ## 必要なもの
 
@@ -74,9 +74,10 @@ dotnet run --project tests/CoreHarness/CoreHarness.csproj -c Release
 dotnet build src/FB2Blogger.Desktop/FB2Blogger.Desktop.csproj -c Release
 dotnet build src/FB2Blogger/FB2Blogger.csproj -c Release
 dotnet run --project tests/AuditHarness/AuditHarness.csproj -c Release
+dotnet run --project tests/PackagingAudit/PackagingAudit.csproj -c Release
 ```
 
-.NET 10 SDK が必要です。現在の正式 Release は Windows 向け自己完結型の単一 EXE のままで、Avalonia プレビューはまだ正式ダウンロードとして提供しません。
+`global.json` で固定した .NET 10 SDK が必要です。正式 Release は引き続き Windows 向け自己完結型 EXE です。macOS／Linux 成果物を Actions から取得できる場合やリリース候補へ添付する場合も、必ず Preview と明記し、Windows 完全版の移行機能を含まないことを示します。
 
 ## ライセンスと責任
 

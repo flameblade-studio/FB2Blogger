@@ -4,19 +4,19 @@
 
 ### 繁體中文
 
-建立不依賴 WinForms 的共享核心，涵蓋模型、Facebook JSON 解析、安全解壓、文章內容組合、搬移進度與平台資料路徑；新增四語 Avalonia 預覽殼及 Windows／macOS／Linux 核心 CI。完整搬家功能目前仍只在 Windows 版提供，未宣稱 macOS／Linux 已完成實機驗證。
+建立不依賴 WinForms 的共享核心、四語 Avalonia 預覽殼與三平台核心 CI；新增 Windows 完整 EXE 真實主視窗啟動檢查、原生 Intel／Apple Silicon macOS DMG、Linux x64 AppImage、各成品可讀 MIT 授權、SHA256、彙總 `SHA256SUMS`、SPDX SBOM，以及只允許 `main` 歷史中精確 RC 標籤發布的四平台原子化 Pre-release 閘門。完整搬家功能目前仍只在 Windows 版提供，未宣稱 macOS／Linux 已完成實機驗證。
 
 ### 简体中文
 
-建立不依赖 WinForms 的共享核心，包含模型、Facebook JSON 解析、安全解压、文章内容组合、迁移进度及平台数据路径；新增四语 Avalonia 预览界面和 Windows／macOS／Linux 核心 CI。完整迁移功能目前仍仅由 Windows 版提供，不声称 macOS／Linux 已完成实机验证。
+建立不依赖 WinForms 的共享核心、四语 Avalonia 预览界面与三平台核心 CI；新增 Windows 完整 EXE 真实主窗口启动检查、原生 Intel／Apple Silicon macOS DMG、Linux x64 AppImage、各成品可读 MIT 许可证、SHA256、汇总 `SHA256SUMS`、SPDX SBOM，以及只允许 `main` 历史中严格 RC 标签发布的四平台原子化 Pre-release 闸门。完整迁移功能目前仍仅由 Windows 版提供，不声称 macOS／Linux 已完成实机验证。
 
 ### English
 
-Adds a WinForms-independent shared core for models, Facebook JSON parsing, safe extraction, post composition, migration state, and platform data paths, plus a four-language Avalonia preview shell and Windows/macOS/Linux core CI. Full migration remains Windows-only and no real Mac or Linux validation is claimed.
+Adds a WinForms-independent shared core, a four-language Avalonia preview, three-platform core CI, a real-main-window smoke test for the full Windows EXE, native Intel/Apple Silicon macOS DMGs, a Linux x64 AppImage, readable MIT licenses inside every artifact, SHA256 plus aggregate `SHA256SUMS`, SPDX SBOMs, and an atomic four-platform pre-release gate restricted to exact RC tags contained in `main` history. Full migration remains Windows-only and no real Mac or Linux validation is claimed.
 
 ### 日本語
 
-モデル、Facebook JSON 解析、安全な展開、記事生成、移行状態、OS 別データ保存先を WinForms 非依存の共通コアへ分離し、4 言語 Avalonia プレビューと Windows／macOS／Linux のコア CI を追加しました。完全な移行機能は引き続き Windows 版のみで、macOS／Linux 実機検証済みとは表現しません。
+WinForms 非依存の共通コア、4 言語 Avalonia Preview、3 プラットフォームのコア CI に加え、Windows 完全版 EXE の実メインウィンドウ起動確認、Intel／Apple Silicon macOS DMG、Linux x64 AppImage、各成果物内の読みやすい MIT License、SHA256 と集約 `SHA256SUMS`、SPDX SBOM、`main` 履歴内の正確な RC タグだけを許可する 4 プラットフォーム原子的 Pre-release ゲートを追加しました。完全な移行機能は引き続き Windows 版のみで、macOS／Linux 実機検証済みとは表現しません。
 
 ## v1.0.0 — 2026-08-05
 

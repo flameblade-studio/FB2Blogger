@@ -28,17 +28,17 @@
 
 ## 繁體中文
 
-歡迎 Issue 與 Pull Request。請先確認問題能在最新版重現，勿附上私人 Facebook ZIP 或憑證。跨平台核心修改請執行 `dotnet run --project tests/CoreHarness/CoreHarness.csproj -c Release` 與 Avalonia 預覽殼建置；Windows 完整版另須執行 `dotnet run --project tests/AuditHarness/AuditHarness.csproj -c Release`。PR 請說明問題、做法、使用者影響、測試作業系統與結果；若改變使用者可見行為，請同步更新繁中、簡中、英文、日文文件。CI 通過不可寫成 macOS／Linux 實機驗證。
+歡迎 Issue 與 Pull Request。請先確認問題能在最新版重現，勿附上私人 Facebook ZIP 或憑證。跨平台核心修改請執行 `dotnet run --project tests/CoreHarness/CoreHarness.csproj -c Release` 與 Avalonia 預覽殼建置；Windows 完整版另須執行 `dotnet run --project tests/AuditHarness/AuditHarness.csproj -c Release`。封裝或發布變更還須執行 `dotnet run --project tests/PackagingAudit/PackagingAudit.csproj -c Release`，並等待原生 runner 的 DMG／AppImage 啟動檢查。PR 請說明問題、做法、使用者影響、測試作業系統與結果；若改變使用者可見行為，請同步更新繁中、簡中、英文、日文文件。CI 通過不可寫成 macOS／Linux 實機驗證。
 
 ## 简体中文
 
-欢迎提交 Issue 和 Pull Request。请先在最新版复现问题，勿附上私人 Facebook ZIP 或凭证。跨平台核心修改必须运行 CoreHarness 并构建 Avalonia 预览界面；Windows 完整版还必须运行 AuditHarness。PR 请说明问题、解决方式、用户影响、测试系统与结果；影响用户行为时必须同步更新繁中、简中、英文、日文文档。CI 通过不得写成 macOS／Linux 实机验证。
+欢迎提交 Issue 和 Pull Request。请先在最新版复现问题，勿附上私人 Facebook ZIP 或凭证。跨平台核心修改必须运行 CoreHarness 并构建 Avalonia 预览界面；Windows 完整版还必须运行 AuditHarness。打包或发布变更还必须运行 PackagingAudit，并等待原生 runner 的 DMG／AppImage 启动检查。PR 请说明问题、解决方式、用户影响、测试系统与结果；影响用户行为时必须同步更新繁中、简中、英文、日文文档。CI 通过不得写成 macOS／Linux 实机验证。
 
 ## English
 
-Issues and pull requests are welcome. Reproduce the problem on the latest version and never attach private Facebook archives or credentials. Cross-platform core changes must run CoreHarness and build the Avalonia preview; the full Windows edition must also run AuditHarness. A PR should explain the problem, approach, user impact, test operating systems, and results. User-visible changes must update Traditional Chinese, Simplified Chinese, English, and Japanese documentation together. Never describe CI as real macOS or Linux hardware validation.
+Issues and pull requests are welcome. Reproduce the problem on the latest version and never attach private Facebook archives or credentials. Cross-platform core changes must run CoreHarness and build the Avalonia preview; the full Windows edition must also run AuditHarness. Packaging or release changes must run PackagingAudit and wait for native-runner DMG/AppImage launch checks. A PR should explain the problem, approach, user impact, test operating systems, and results. User-visible changes must update Traditional Chinese, Simplified Chinese, English, and Japanese documentation together. Never describe CI as real macOS or Linux hardware validation.
 
 ## 日本語
 
-Issue と Pull Request を歓迎します。最新版で再現を確認し、非公開の Facebook ZIP や認証情報を添付しないでください。共通コアの変更では CoreHarness と Avalonia プレビューのビルドを行い、Windows 完全版では AuditHarness も実行してください。PR には問題、対応方法、利用者への影響、検証した OS と結果を記載し、利用者向けの変更では繁体字中国語・簡体字中国語・英語・日本語の文書を同時に更新してください。CI 成功を macOS／Linux 実機検証と表現してはいけません。
+Issue と Pull Request を歓迎します。最新版で再現を確認し、非公開の Facebook ZIP や認証情報を添付しないでください。共通コアの変更では CoreHarness と Avalonia プレビューのビルドを行い、Windows 完全版では AuditHarness も実行してください。パッケージまたは公開手順の変更では PackagingAudit も実行し、ネイティブ runner の DMG／AppImage 起動確認を待ってください。PR には問題、対応方法、利用者への影響、検証した OS と結果を記載し、利用者向けの変更では繁体字中国語・簡体字中国語・英語・日本語の文書を同時に更新してください。CI 成功を macOS／Linux 実機検証と表現してはいけません。
 

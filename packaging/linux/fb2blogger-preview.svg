@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="FB2Blogger Preview">
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#173653"/>
+      <stop offset="1" stop-color="#7b3f72"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffb25b"/>
+      <stop offset="1" stop-color="#ffd9a0"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#background)"/>
+  <path d="M112 135h122c28 0 50 22 50 50v192H162c-28 0-50-22-50-50z" fill="#f8fbff" opacity=".96"/>
+  <path d="M400 135H278c-28 0-50 22-50 50v192h122c28 0 50-22 50-50z" fill="#eaf2fa" opacity=".96"/>
+  <path d="M171 221h126l-30-30 24-24 71 71-71 71-24-24 30-30H171z" fill="url(#accent)"/>
+  <path d="M256 185v192" stroke="#b7c9da" stroke-width="10"/>
+</svg>
