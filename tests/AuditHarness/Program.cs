@@ -49,6 +49,13 @@ var expectedBadgeNames = new[]
     "Four interface languages"
 };
 string? canonicalBadgeBlock = null;
+var sponsorInstructions = new Dictionary<string, string>(StringComparer.Ordinal)
+{
+    ["README.md"] = "請使用本儲存庫上方由 GitHub 顯示的 **Sponsor** 按鈕；目前正式收款選項為 Ko-fi，可選擇單次或每月贊助。",
+    ["README.zh-CN.md"] = "请使用本仓库上方由 GitHub 显示的 **Sponsor** 按钮；目前正式收款选项为 Ko-fi，可选择单次或每月赞助。",
+    ["README.en.md"] = "Use the **Sponsor** button displayed by GitHub above this repository; Ko-fi is the current official funding option and supports one-time or monthly contributions.",
+    ["README.ja.md"] = "このリポジトリ上部に GitHub が表示する **Sponsor** ボタンをご利用ください。現在の正式な支援先は Ko-fi で、単発または毎月の支援を選べます。"
+};
 
 foreach (var readmeName in new[] { "README.md", "README.zh-CN.md", "README.en.md", "README.ja.md" })
 {
@@ -67,8 +74,8 @@ foreach (var readmeName in new[] { "README.md", "README.zh-CN.md", "README.en.md
     Check(badgeBlock.Contains("img.shields.io/badge/.NET-10.0", StringComparison.Ordinal) && badgeBlock.Contains("interface%20languages-4", StringComparison.Ordinal), $"{readmeName} labels .NET 10 and four interface languages as static facts");
     Check(!Regex.IsMatch(badgeBlock, @"(?i)(?:version|release)-v?1\.|v1\.1\.0"), $"{readmeName} has no hard-coded legacy version badge");
     Check(readme.Contains("docs/RELEASE-PROCESS.md", StringComparison.Ordinal), $"{readmeName} links the shared Flameblade quality and release standard");
-    Check(readme.Contains("https://ko-fi.com/flamebladestudio", StringComparison.Ordinal), $"{readmeName} links the verified Ko-fi support page");
-    Check(!readme.Contains("buymeacoffee.com", StringComparison.OrdinalIgnoreCase) && !readme.Contains("paypal.com/paypalme", StringComparison.OrdinalIgnoreCase), $"{readmeName} excludes retired support links");
+    Check(readme.Contains(sponsorInstructions[readmeName], StringComparison.Ordinal), $"{readmeName} directs support through GitHub's localized Sponsor button wording");
+    Check(!readme.Contains("ko-fi.com/", StringComparison.OrdinalIgnoreCase) && !readme.Contains("buymeacoffee.com", StringComparison.OrdinalIgnoreCase) && !readme.Contains("paypal.com/paypalme", StringComparison.OrdinalIgnoreCase), $"{readmeName} keeps funding destinations centralized in FUNDING.yml");
     Check(!readme.Contains("\n+<p align=\"center\">", StringComparison.Ordinal), $"{readmeName} has no stray patch marker");
 }
 

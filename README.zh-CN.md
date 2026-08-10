@@ -87,7 +87,7 @@ dotnet run --project tests/PackagingAudit/PackagingAudit.csproj -c Release
 
 FB2Blogger 的全部迁移功能均依 MIT 许可证免费开放，不会因是否赞助而限制功能。如果它帮助你保存了珍贵文章并减少手动整理时间，欢迎自愿支持炎剑文化工作室继续维护开源工具：
 
-- [Ko-fi 一次性赞助](https://ko-fi.com/flamebladestudio)
+请使用本仓库上方由 GitHub 显示的 **Sponsor** 按钮；目前正式收款选项为 Ko-fi，可选择单次或每月赞助。
 
 不赞助也完全没有关系；报告问题、改进文档或提交 PR，同样是重要的支持。
 
