@@ -89,8 +89,7 @@ This independent project is not affiliated with or endorsed by Meta, Facebook, G
 
 Every FB2Blogger migration feature remains free under the MIT License. Donations never unlock or restrict functionality. If the app helped preserve your writing or saved hours of manual work, you may voluntarily support Flameblade Studio's continued open-source maintenance:
 
-- [Buy Me a Coffee](https://buymeacoffee.com/flameblade_studio)
-- [PayPal.Me](https://www.paypal.com/paypalme/flamebladestudio)
+- [One-time support on Ko-fi](https://ko-fi.com/flamebladestudio)
 
 Support is never required. Bug reports, documentation improvements, and pull requests are equally valuable contributions.
 

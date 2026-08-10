@@ -67,9 +67,13 @@ foreach (var readmeName in new[] { "README.md", "README.zh-CN.md", "README.en.md
     Check(badgeBlock.Contains("img.shields.io/badge/.NET-10.0", StringComparison.Ordinal) && badgeBlock.Contains("interface%20languages-4", StringComparison.Ordinal), $"{readmeName} labels .NET 10 and four interface languages as static facts");
     Check(!Regex.IsMatch(badgeBlock, @"(?i)(?:version|release)-v?1\.|v1\.1\.0"), $"{readmeName} has no hard-coded legacy version badge");
     Check(readme.Contains("docs/RELEASE-PROCESS.md", StringComparison.Ordinal), $"{readmeName} links the shared Flameblade quality and release standard");
-    Check(readme.Contains("https://buymeacoffee.com/flameblade_studio", StringComparison.Ordinal) && readme.Contains("https://www.paypal.com/paypalme/flamebladestudio", StringComparison.OrdinalIgnoreCase), $"{readmeName} includes both voluntary support links");
+    Check(readme.Contains("https://ko-fi.com/flamebladestudio", StringComparison.Ordinal), $"{readmeName} links the verified Ko-fi support page");
+    Check(!readme.Contains("buymeacoffee.com", StringComparison.OrdinalIgnoreCase) && !readme.Contains("paypal.com/paypalme", StringComparison.OrdinalIgnoreCase), $"{readmeName} excludes retired support links");
     Check(!readme.Contains("\n+<p align=\"center\">", StringComparison.Ordinal), $"{readmeName} has no stray patch marker");
 }
+
+var funding = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), ".github", "FUNDING.yml")).Replace("\r\n", "\n", StringComparison.Ordinal);
+Check(funding == "ko_fi: flamebladestudio\n", "GitHub Sponsor button uses only the verified Ko-fi account");
 
 var contributing = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "CONTRIBUTING.md"));
 var releaseProcessPath = Path.Combine(Directory.GetCurrentDirectory(), "docs", "RELEASE-PROCESS.md");
