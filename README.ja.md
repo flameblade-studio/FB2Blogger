@@ -87,8 +87,7 @@ dotnet run --project tests/PackagingAudit/PackagingAudit.csproj -c Release
 
 FB2Blogger の移行機能はすべて MIT ライセンスのもとで無償公開されており、支援の有無によって機能が制限されることはありません。大切な記事の保存や手作業の削減に役立った場合は、炎剣文化工作室によるオープンソース保守を任意でご支援いただけます。
 
-- [Buy Me a Coffee](https://buymeacoffee.com/flameblade_studio)
-- [PayPal.Me](https://www.paypal.com/paypalme/flamebladestudio)
+- [Ko-fi で一回限りの支援](https://ko-fi.com/flamebladestudio)
 
 ご支援は必須ではありません。不具合報告、文書の改善、プルリクエストも同じく大切な貢献です。
 
