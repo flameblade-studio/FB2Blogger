@@ -49,6 +49,13 @@ var expectedBadgeNames = new[]
     "Four interface languages"
 };
 string? canonicalBadgeBlock = null;
+var supportLabels = new Dictionary<string, string>(StringComparer.Ordinal)
+{
+    ["README.md"] = "Ko-fi 贊助（單次或每月）",
+    ["README.zh-CN.md"] = "Ko-fi 赞助（单次或每月）",
+    ["README.en.md"] = "Support on Ko-fi (one-time or monthly)",
+    ["README.ja.md"] = "Ko-fi で支援（1 回または毎月）"
+};
 
 foreach (var readmeName in new[] { "README.md", "README.zh-CN.md", "README.en.md", "README.ja.md" })
 {
@@ -68,6 +75,7 @@ foreach (var readmeName in new[] { "README.md", "README.zh-CN.md", "README.en.md
     Check(!Regex.IsMatch(badgeBlock, @"(?i)(?:version|release)-v?1\.|v1\.1\.0"), $"{readmeName} has no hard-coded legacy version badge");
     Check(readme.Contains("docs/RELEASE-PROCESS.md", StringComparison.Ordinal), $"{readmeName} links the shared Flameblade quality and release standard");
     Check(readme.Contains("https://ko-fi.com/flamebladestudio", StringComparison.Ordinal), $"{readmeName} links the verified Ko-fi support page");
+    Check(readme.Contains(supportLabels[readmeName], StringComparison.Ordinal), $"{readmeName} uses localized one-time and monthly Ko-fi wording");
     Check(!readme.Contains("buymeacoffee.com", StringComparison.OrdinalIgnoreCase) && !readme.Contains("paypal.com/paypalme", StringComparison.OrdinalIgnoreCase), $"{readmeName} excludes retired support links");
     Check(!readme.Contains("\n+<p align=\"center\">", StringComparison.Ordinal), $"{readmeName} has no stray patch marker");
 }

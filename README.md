@@ -91,7 +91,7 @@ dotnet publish src/FB2Blogger/FB2Blogger.csproj -c Release -r win-x64 --self-con
 
 FB2Blogger 的所有搬家功能都依 MIT 授權免費開放，不會因為是否贊助而限制功能。如果它幫你保住珍貴文章、減少手動整理時間，歡迎自由支持炎劍文化工作室繼續維護開源工具：
 
-- [Ko-fi 一次性贊助](https://ko-fi.com/flamebladestudio)
+- [Ko-fi 贊助（單次或每月）](https://ko-fi.com/flamebladestudio)
 
 不贊助也完全沒關係；回報問題、改善文件或提交 PR，同樣是重要的支持。
 
