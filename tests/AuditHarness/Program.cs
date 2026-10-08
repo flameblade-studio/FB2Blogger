@@ -118,8 +118,10 @@ Check(
 
 var secretDefenseWorkflow = File.ReadAllText(Path.Combine(workflowDirectory, "secret-defense.yml"));
 Check(
-    Regex.IsMatch(secretDefenseWorkflow, @"gitleaks/gitleaks-action@[0-9a-f]{40}(?:\r?$|\s)", RegexOptions.Multiline, TimeSpan.FromSeconds(1)),
-    "Secret Defense pins Gitleaks to an immutable commit");
+    Regex.IsMatch(secretDefenseWorkflow, @"github\.com/gitleaks/gitleaks/releases/download/v\d+\.\d+\.\d+/gitleaks_\d+\.\d+\.\d+_linux_x64\.tar\.gz", RegexOptions.None, TimeSpan.FromSeconds(1)) &&
+    Regex.IsMatch(secretDefenseWorkflow, @"echo ""[0-9a-f]{64}  gitleaks\.tar\.gz"" \| sha256sum -c -", RegexOptions.None, TimeSpan.FromSeconds(1)) &&
+    !secretDefenseWorkflow.Contains("gitleaks/gitleaks-action", StringComparison.Ordinal),
+    "Secret Defense runs a version-pinned, checksum-verified open-source Gitleaks CLI");
 
 var securityAuditWorkflow = File.ReadAllText(Path.Combine(workflowDirectory, "security-audit.yml"));
 Check(
