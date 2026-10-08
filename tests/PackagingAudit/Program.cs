@@ -64,9 +64,9 @@ Check(linuxScript.Contains("FB2Blogger.AppDir", StringComparison.Ordinal) &&
       linuxScript.Contains("Permission is hereby granted", StringComparison.Ordinal) &&
       linuxScript.Contains("sha256sum", StringComparison.Ordinal),
     "Linux packaging creates, extracts, launches, and hashes a real AppImage containing the MIT license");
-Check(linuxScript.Contains("8c8c91f762b412a19f4e8d2c4b35afb98f2d7c81", StringComparison.Ordinal) &&
-      linuxScript.Contains("a6d71e2b6cd66f8e8d16c37ad164658985e0cf5fcaa950c90a482890cb9d13e0", StringComparison.Ordinal),
-    "AppImage tooling is fail-closed to an audited upstream commit and SHA256");
+Check(linuxScript.Contains("appimagetool/releases/download/1.9.1/appimagetool-x86_64.AppImage", StringComparison.Ordinal) &&
+      linuxScript.Contains("ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0", StringComparison.Ordinal),
+    "AppImage tooling is fail-closed to the tagged 1.9.1 release and its SHA256");
 
 Check(metadataScript.Contains("REF_TYPE", StringComparison.Ordinal) &&
       metadataScript.Contains("PR-${PR_NUMBER", StringComparison.Ordinal) &&

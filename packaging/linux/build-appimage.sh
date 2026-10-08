@@ -57,11 +57,11 @@ exec "${here}/usr/bin/FB2Blogger.Desktop" "$@"
 APPRUN
 chmod +x "${app_dir}/AppRun" "${app_dir}/usr/bin/FB2Blogger.Desktop"
 
-# AppImage upstream intentionally uses continuous releases. The content digest
-# pins this download to commit 8c8c91f762b412a19f4e8d2c4b35afb98f2d7c81
-# (published 2025-12-04); an upstream replacement fails closed until reviewed.
-appimagetool_url="https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage"
-appimagetool_sha256="a6d71e2b6cd66f8e8d16c37ad164658985e0cf5fcaa950c90a482890cb9d13e0"
+# The "continuous" upstream asset is replaced in place, which broke its pinned
+# digest. Pin the tagged 1.9.1 release asset and its content digest instead;
+# any upstream replacement still fails closed until reviewed.
+appimagetool_url="https://github.com/AppImage/appimagetool/releases/download/1.9.1/appimagetool-x86_64.AppImage"
+appimagetool_sha256="ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0"
 appimagetool="${work_dir}/appimagetool-x86_64.AppImage"
 curl --fail --location --proto '=https' --tlsv1.2 "${appimagetool_url}" -o "${appimagetool}"
 printf '%s  %s\n' "${appimagetool_sha256}" "${appimagetool}" | sha256sum --check --strict
